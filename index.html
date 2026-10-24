@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>כימיה כללית 1 · אודיסיאה תשפ״ז</title>
+<meta name="description" content="אתר הקורס כימיה כללית 1 — לוח שיעורים, מטלות הנפצה, נושאי הקורס והודעות">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#FBF8F1; --surface:#FFFFFF; --primary:#1F4E79; --primary-700:#17405F; --primary-100:#E4ECF5;
+  --accent:#2A9D8F; --accent-100:#E2F3F0; --accent-700:#1E7A6E;
+  --gold:#D9A441; --gold-100:#FBF1DA; --gold-700:#8A6414;
+  --warn:#C0553A; --warn-100:#F8E6E1; --sky:#7B9ACC; --sky-100:#EEF2FA;
+  --ink:#1A1A1A; --ink-2:#3C4A5A; --muted:#6B7280; --line:#E3E7EE;
+  --radius:16px; --shadow-sm:0 1px 2px rgba(31,78,121,.06); --shadow-md:0 8px 24px rgba(31,78,121,.10);
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0; font-family:"Heebo",system-ui,-apple-system,"Segoe UI",sans-serif; background:var(--bg); color:var(--ink); line-height:1.6; -webkit-text-size-adjust:100%}
+a{color:var(--primary); text-decoration:none} a:hover{text-decoration:underline}
+.wrap{max-width:1180px; margin:0 auto; padding:0 18px}
+.ltr,.num,.m{direction:ltr; unicode-bidi:isolate; display:inline-block}
+.m{font-family:"STIX Two Math","Cambria Math",Georgia,serif; font-size:1.06em}
+.tiny{font-size:12px; color:var(--muted)}
+/* ---- topbar ---- */
+.topbar{background:var(--surface); border-bottom:1px solid var(--line); position:sticky; top:0; z-index:30}
+.topbar-inner{display:flex; align-items:center; gap:14px; padding:10px 18px; max-width:1180px; margin:0 auto}
+.brand{display:flex; align-items:center; gap:12px}
+.brand .logo{width:42px; height:42px; border-radius:12px; background:linear-gradient(135deg,var(--primary),var(--accent)); display:flex; align-items:center; justify-content:center; color:#fff; font-weight:900; font-size:18px}
+.brand b{font-size:17px; font-weight:800; color:var(--primary)} .brand small{display:block; color:var(--muted); font-size:12px; font-weight:500}
+.topbar-actions{margin-inline-start:auto; display:flex; align-items:center; gap:8px}
+.icon-btn{background:var(--surface); border:1px solid var(--line); border-radius:10px; width:38px; height:38px; cursor:pointer; font-size:17px}
+/* ---- nav ---- */
+.nav{background:var(--surface); border-bottom:1px solid var(--line); position:sticky; top:63px; z-index:29}
+.nav-inner{display:flex; gap:4px; max-width:1180px; margin:0 auto; padding:0 12px; overflow-x:auto; scrollbar-width:none}
+.nav-inner::-webkit-scrollbar{display:none}
+.nav-btn{background:none; border:none; border-bottom:3px solid transparent; padding:12px 14px; font:inherit; font-weight:700; color:var(--muted); cursor:pointer; white-space:nowrap; display:flex; align-items:center; gap:6px; min-height:46px}
+.nav-btn:hover{color:var(--ink)} .nav-btn.active{color:var(--primary); border-bottom-color:var(--gold)}
+/* ---- hero + journey ---- */
+.hero{padding:34px 0 8px}
+.eyebrow{color:var(--accent-700); font-weight:800; font-size:13px; letter-spacing:.3px}
+.hero-title{font-size:clamp(28px,4.2vw,44px); font-weight:900; color:var(--primary); line-height:1.15; margin:4px 0 0}
+.hero-sub{color:var(--ink-2); font-size:16px; margin-top:10px; max-width:72ch}
+.hero-meta{display:flex; flex-wrap:wrap; gap:8px; margin-top:16px}
+.chip{display:inline-flex; align-items:center; gap:6px; background:var(--surface); border:1px solid var(--line); border-radius:999px; padding:5px 13px; font-size:13.5px; font-weight:600; color:var(--ink-2)}
+.chip.blue{background:var(--primary-100); border-color:transparent; color:var(--primary-700)}
+.chip.teal{background:var(--accent-100); border-color:transparent; color:var(--accent-700)}
+.chip.gold{background:var(--gold-100); border-color:transparent; color:var(--gold-700)}
+.chip.warn{background:var(--warn-100); border-color:transparent; color:var(--warn)}
+.journey{margin:22px 0 6px; background:var(--surface); border:1px solid var(--line); border-radius:var(--radius); padding:18px 16px 12px; box-shadow:var(--shadow-sm); overflow-x:auto}
+.journey .track{display:flex; align-items:flex-start; gap:0; min-width:760px; position:relative}
+.journey .track::before{content:""; position:absolute; top:22px; right:30px; left:30px; height:4px; background:linear-gradient(90deg,var(--accent),var(--sky)); border-radius:2px; opacity:.45}
+.journey .stn{flex:1; display:flex; flex-direction:column; align-items:center; text-align:center; position:relative; cursor:pointer; padding:0 3px}
+.journey .stn .dot{width:44px; height:44px; border-radius:50%; background:var(--surface); border:3px solid var(--sky); display:flex; align-items:center; justify-content:center; font-weight:900; color:var(--primary); z-index:1; transition:.15s}
+.journey .stn.done .dot{background:var(--accent); border-color:var(--accent); color:#fff}
+.journey .stn.now .dot{background:var(--gold); border-color:var(--gold); color:#3a2f08; box-shadow:0 0 0 6px var(--gold-100)}
+.journey .stn.selfstudy .dot{border-style:dashed; width:36px; height:36px; margin-top:4px; font-size:12px}
+.journey .stn:hover .dot{transform:scale(1.08)}
+.journey .stn .lab{font-size:12px; font-weight:700; color:var(--ink-2); margin-top:6px; line-height:1.3; max-width:110px}
+.journey .stn .dt{font-size:11px; color:var(--muted)}
+.journey .stn.milestone .dot{border-radius:12px; background:var(--primary); border-color:var(--primary); color:#fff}
+/* ---- cards/sections ---- */
+.section{padding:26px 0 8px}
+.section-head{display:flex; align-items:baseline; gap:12px; margin-bottom:14px; flex-wrap:wrap}
+.section-head h2{font-size:23px; font-weight:800; margin:0; color:var(--primary)}
+.section-head p{margin:0; color:var(--muted); font-size:14px}
+.grid{display:grid; gap:16px} .grid.c2{grid-template-columns:repeat(auto-fit,minmax(300px,1fr))} .grid.c3{grid-template-columns:repeat(auto-fit,minmax(250px,1fr))}
+.card{background:var(--surface); border:1px solid var(--line); border-radius:var(--radius); box-shadow:var(--shadow-sm); padding:18px 20px; transition:.18s}
+.card.hoverable:hover{transform:translateY(-3px); box-shadow:var(--shadow-md); border-color:var(--sky)}
+.card h3{margin:0 0 6px; font-size:17px; color:var(--primary)}
+.card p{margin:6px 0; color:var(--ink-2); font-size:14.5px}
+.card.accent{border-inline-start:5px solid var(--accent)} .card.gold{border-inline-start:5px solid var(--gold)} .card.warn{border-inline-start:5px solid var(--warn)}
+.btn{display:inline-flex; align-items:center; gap:7px; padding:9px 16px; border-radius:12px; border:1px solid transparent; font:inherit; font-weight:700; font-size:14px; cursor:pointer; transition:.15s; text-decoration:none!important}
+.btn-primary{background:linear-gradient(135deg,var(--primary),var(--accent-700)); color:#fff; box-shadow:var(--shadow-md)}
+.btn-ghost{background:var(--surface); border-color:var(--line); color:var(--ink-2)} .btn-ghost:hover{border-color:var(--primary); color:var(--primary)}
+.btn-sm{padding:6px 12px; font-size:13px; border-radius:10px}
+.btn[aria-disabled="true"]{opacity:.5; cursor:not-allowed}
+.links{display:flex; flex-wrap:wrap; gap:8px; margin-top:12px}
+.tag{display:inline-block; background:var(--sky-100); color:var(--primary); border-radius:8px; padding:2px 9px; font-size:12px; font-weight:700}
+.tag.self{background:var(--gold-100); color:var(--gold-700)} .tag.quiz{background:var(--warn-100); color:var(--warn)} .tag.now{background:var(--accent-100); color:var(--accent-700)}
+/* unit card */
+.unit{display:grid; grid-template-columns:64px 1fr; gap:14px}
+.unit .n{width:56px; height:56px; border-radius:16px; background:var(--primary-100); color:var(--primary); font-weight:900; font-size:22px; display:flex; align-items:center; justify-content:center}
+.unit.selfstudy .n{background:var(--gold-100); color:var(--gold-700); font-size:16px}
+.unit .meta{display:flex; flex-wrap:wrap; gap:6px; margin:4px 0 6px}
+.unit .topics{font-size:14px; color:var(--ink-2)}
+.unit .bridge{font-size:13px; color:var(--accent-700); background:var(--accent-100); border-radius:8px; padding:6px 10px; margin-top:8px}
+.unit .sim{font-size:13px; color:var(--primary); background:var(--sky-100); border-radius:8px; padding:6px 10px; margin-top:6px}
+/* calendar */
+table.cal{width:100%; border-collapse:collapse; background:var(--surface); border-radius:var(--radius); overflow:hidden; box-shadow:var(--shadow-sm); font-size:14px}
+table.cal th,table.cal td{padding:10px 12px; border-bottom:1px solid var(--line); text-align:right; vertical-align:top}
+table.cal th{background:var(--primary-100); color:var(--primary); font-size:13px}
+table.cal tr.past td{color:var(--muted)} table.cal tr.now td{background:var(--gold-100)} table.cal tr.off td{background:#f5f5f5; color:var(--muted)} table.cal tr.spec td{background:var(--primary-100)} @media (max-width:600px){table.cal th,table.cal td{padding:8px 6px; font-size:13px}}
+/* announcements */
+.ann{border-inline-start:4px solid var(--gold); background:var(--surface); border-radius:12px; padding:12px 16px; margin-bottom:10px; box-shadow:var(--shadow-sm)}
+.ann .d{font-size:12px; color:var(--muted)} .ann b{color:var(--primary)}
+/* faq */
+details{background:var(--surface); border:1px solid var(--line); border-radius:12px; padding:10px 16px; margin-bottom:8px}
+summary{cursor:pointer; font-weight:700; color:var(--primary)}
+input[type=password],input[type=text],textarea{font:inherit; padding:8px 10px; border:1px solid var(--line); border-radius:10px; width:100%; background:var(--bg)}
+.footer{margin-top:44px; padding:26px 0 40px; border-top:1px solid var(--line); color:var(--muted); font-size:13px}
+.footer b{color:var(--ink-2)}
+.toast{position:fixed; bottom:18px; right:50%; transform:translateX(50%); background:var(--primary); color:#fff; padding:10px 18px; border-radius:12px; opacity:0; transition:.25s; z-index:50; pointer-events:none}
+.toast.show{opacity:1}
+.kbd{background:var(--sky-100); border-radius:6px; padding:0 6px; font-family:ui-monospace,monospace; font-size:.9em}
+@media (max-width:700px){ .unit{grid-template-columns:1fr} .unit .n{width:44px; height:44px; font-size:18px} .nav{top:59px} }
+@media print{ .topbar,.nav,.footer,.btn{display:none!important} }
+
+/* ---- הנפצה ---- */
+.hn{display:grid; grid-template-columns:72px 1fr; gap:16px}
+.hn .n{width:64px; height:64px; border-radius:18px; background:linear-gradient(135deg,var(--warn),var(--gold)); color:#fff; font-weight:900; font-size:26px; display:flex; align-items:center; justify-content:center}
+.hn ol{margin:6px 0 0; padding-inline-start:20px; color:var(--ink-2); font-size:14.5px}
+.hn ol li{margin:3px 0}
+.rule{display:flex; gap:10px; align-items:flex-start}
+.rule .i{font-size:22px; line-height:1.2}
+@media (max-width:700px){ .hn{grid-template-columns:1fr} .hn .n{width:48px; height:48px; font-size:20px} }
+</style>
+</head>
+<body>
+<header class="topbar"><div class="topbar-inner">
+  <div class="brand"><div class="logo">כ1</div><div><b>כימיה כללית 1</b><small>אודיסיאה · שנה א׳ · מסלול מדעי · תשפ״ז</small></div></div>
+  <div class="topbar-actions"><button class="icon-btn" id="printBtn" title="הדפסה" aria-label="הדפסה">🖨️</button></div>
+</div></header>
+<nav class="nav"><div class="nav-inner" id="navBar"></div></nav>
+<main class="wrap" id="main"></main>
+<footer class="footer"><div class="wrap">
+  <b>כימיה כללית 1</b> · תוכנית אודיסיאה · בית הספר לכימיה, אוניברסיטת תל אביב<br>
+  מרצה הקורס: ד״ר עומרי מורג<br>
+  <span class="tiny">גרסה <span class="num">0.1</span> · בנייה <span class="num">2026-10-24</span> · כל החומרים באתר מיועדים לשימוש התלמידים בקורס בלבד.</span>
+</div></footer>
+<div class="toast" id="toast"></div>
+
+<script>
+/* ============================================================
+   1. נתוני הקורס — כל התוכן במקום אחד
+      מפגש חדש: איבר ב-SESSIONS · מטלת הנפצה חדשה: איבר ב-HANPATZOT
+      הודעה חדשה: איבר ב-ANNOUNCEMENTS. כל שינוי = עדכון הקובץ ודחיפה לגיטהאב.
+   ============================================================ */
+const COURSE = {
+  title:"כימיה כללית 1",
+  year:"תשפ״ז · 2026–2027",
+  lecturer:"ד״ר עומרי מורג",
+  semA:"סמסטר א׳ · שני 15:00–16:30 · רביעי 15:00–17:45",
+  room:"כיתת גלבוע"
+};
+
+/* יחידות הקורס — 17 יחידות. סמסטר א׳: 1–8, סמסטר ב׳: 9–17 */
+const UNITS = [
+  {id:1, sem:"א", title:"גזים אידיאליים וריאליים", topics:"משוואת מצב · תהליכים איזותרמי, איזוכורי ואיזוברי · תערובות וחוק דלטון · ואן דר ואלס ומקדם הדחיסות"},
+  {id:2, sem:"א", title:"המודל הקינטי של הגזים", topics:"חוק בויל מהתנגשויות · טמפרטורה כאנרגיה קינטית · מהירויות מולקולריות · אפוזיה"},
+  {id:3, sem:"א", title:"עבודה ואנרגיה", topics:"כוח, עבודה ושימור אנרגיה · עבודת לחץ־נפח · שטח מתחת לעקומה · תלות במסלול · תהליך הפיך ועבודה מקסימלית"},
+  {id:4, sem:"א", title:"כוחות בין מולקולריים", topics:"כוחות פיזור · דיפול · קשרי מימן: מים, דנ״א וצמיגות"},
+  {id:5, sem:"א", title:"תרמוכימיה ועקומת חימום", topics:"מערכת וחום · החוק האפסי · קלורימטריה · החוק הראשון, אנרגיה פנימית ואנתלפיה · חוק הס · אנתלפיות יצירה וקשר · קירכהוף · מעברי פאזה ועקומת חימום"},
+  {id:6, sem:"א", title:"אנטרופיה", topics:"ספונטניות והחוק השני · קלאוזיוס · מיקרו־מצבים ובולצמן · החוק השלישי · אנטרופיית מעבר פאזה · מעגלים תרמודינמיים"},
+  {id:7, sem:"א", title:"אנרגיה חופשית", topics:"אנרגיה חופשית של גיבס · טבלת סימנים · טמפרטורת סף · תנאים לא תקניים · הקשר לקבוע שיווי משקל · ואן ט׳וף"},
+  {id:8, sem:"א", title:"שיווי משקל כימי", topics:"קבוע שיווי משקל ומנת תגובה · טבלאות ריכוזים · עיקרון לה־שטליה · תגובות מצומדות"},
+  {id:9, sem:"ב", title:"נוזלים ודיאגרמות פאזות"},
+  {id:10, sem:"ב", title:"מוצקים"},
+  {id:11, sem:"ב", title:"תמיסות"},
+  {id:12, sem:"ב", title:"מבנה האטום: מדלטון עד רתרפורד"},
+  {id:13, sem:"ב", title:"גלים, אור ובוהר"},
+  {id:14, sem:"ב", title:"דה ברויי, שרדינגר ואורביטלים"},
+  {id:15, sem:"ב", title:"אטומים רבי אלקטרונים והטבלה המחזורית"},
+  {id:16, sem:"ב", title:"הקשר הכימי"},
+  {id:17, sem:"ב", title:"כימיה גרעינית"}
+];
+
+/* לוח סמסטר א׳ — לפי מערכת אודיסיאה (שנה א׳, תשפ״ז).
+   type: open | lesson | review | holiday | quiz | makeup | exam | study */
+const SESSIONS = [
+  {n:0,  date:"2026-10-19", type:"open",    title:"מפגש הפתיחה של אודיסיאה — אין שיעור כימיה"},
+  {n:1,  date:"2026-10-21", type:"lesson", unit:1, title:"פתיחת הקורס: מהקיץ לרמה אוניברסיטאית. משוואת מצב, תהליכים, תערובות ודלטון", note:"שיעור ההדגמות · ניתנה מטלת הנפצה 1"},
+  {n:2,  date:"2026-10-26", type:"lesson", unit:1, title:"גזים ריאליים: ואן דר ואלס ומקדם הדחיסות", note:"הגשת מטלת הקיץ"},
+  {n:3,  date:"2026-10-28", type:"lesson", unit:2, title:"המודל הקינטי ברמה אלגברית ותרגול גזים ברמת בחינה", note:"הגשת מטלת הנפצה 1"},
+  {n:4,  date:"2026-11-02", type:"lesson", unit:3, title:"עבודה ואנרגיה א׳: כוח, עבודה, שימור אנרגיה"},
+  {n:5,  date:"2026-11-04", type:"lesson", unit:3, title:"עבודה ואנרגיה ב׳: עבודת לחץ־נפח, תלות במסלול, תהליך הפיך ועבודה מקסימלית"},
+  {n:6,  date:"2026-11-09", type:"lesson", unit:4, title:"כוחות בין מולקולריים: פיזור, דיפול, קשרי מימן"},
+  {n:7,  date:"2026-11-11", type:"lesson", unit:4, title:"קשרי מימן לעומק (מים, דנ״א, צמיגות) ותרגול"},
+  {n:8,  date:"2026-11-16", type:"lesson", unit:5, title:"תרמוכימיה: מערכת, חום, החוק האפסי, קלורימטריה"},
+  {n:9,  date:"2026-11-18", type:"lesson", unit:5, title:"החוק הראשון, אנרגיה פנימית ואנתלפיה, פונקציות מצב"},
+  {n:10, date:"2026-11-23", type:"lesson", unit:5, title:"תרגול קלורימטריה והחוק הראשון"},
+  {n:11, date:"2026-11-25", type:"lesson", unit:5, title:"חוק הס, אנתלפיות יצירה, אנתלפיות קשר"},
+  {n:12, date:"2026-11-30", type:"lesson", unit:5, title:"קירכהוף ותרגול מסכם"},
+  {n:13, date:"2026-12-02", type:"review", title:"חזרה על שאלות ממבחני עבר", note:"לקראת בוחן חנוכה"},
+  {n:51, date:"2026-12-07", type:"quiz",   title:"בוחן חנוכה · 15:00–18:00", note:"גזים, מודל קינטי, עבודה, כוחות בין מולקולריים, תרמוכימיה עד קירכהוף"},
+  {n:52, date:"2026-12-09", type:"holiday", title:"חנוכה — אין שיעור"},
+  {n:14, date:"2026-12-14", type:"lesson", unit:5, title:"מעברי פאזה ועקומת חימום"},
+  {n:15, date:"2026-12-16", type:"lesson", unit:5, title:"ניסוי חימום מים וקרח בכיתה", note:"מטלת הנפצה קבוצתית"},
+  {n:16, date:"2026-12-21", type:"lesson", unit:6, title:"אנטרופיה: ספונטניות, החוק השני, קלאוזיוס"},
+  {n:17, date:"2026-12-23", type:"lesson", unit:6, title:"מיקרו־מצבים ובולצמן, החוק השלישי, אנטרופיית מעבר פאזה"},
+  {n:18, date:"2026-12-28", type:"lesson", unit:6, title:"מעגלים תרמודינמיים ותרגול אנטרופיה"},
+  {n:19, date:"2026-12-30", type:"lesson", unit:7, title:"אנרגיה חופשית של גיבס, טבלת סימנים, טמפרטורת סף, תנאים לא תקניים"},
+  {n:20, date:"2027-01-04", type:"lesson", unit:7, title:"הקשר בין אנרגיה חופשית לקבוע שיווי משקל, ואן ט׳וף"},
+  {n:21, date:"2027-01-06", type:"lesson", unit:8, title:"שיווי משקל כימי: קבוע, מנת תגובה, טבלאות ריכוזים, לה־שטליה", note:"לפני השיעור: סרטונים 48–57 בקורס המקוון ״מדברים כימיה״"},
+  {n:22, date:"2027-01-11", type:"lesson", unit:8, title:"תרגול שיווי משקל ותגובות מצומדות"},
+  {n:23, date:"2027-01-13", type:"review", title:"סיכום הסמסטר ופתיחת ההכנה למבחן", note:"השיעור האחרון של סמסטר א׳"},
+  {n:53, date:null, type:"makeup", title:"ימי השלמות לשיעורים שבוטלו", when:"3.1 עד 14.1.2027"},
+  {n:54, date:null, type:"study",  title:"תקופת למידה למבחנים ומרתונים", when:"15.1 עד 28.2.2027"},
+  {n:55, date:"2027-02-22", type:"exam", title:"מבחן סוף סמסטר א׳ · 15:00–18:00", note:"יחידות 1 עד 8"}
+];
+
+/* מטלות הנפצה. status: open (פתוחה להגשה) | closed (ההגשה נסגרה) */
+const HANPATZOT = [
+  {id:1, title:"גזים: הבועה, הנר והבלונים", given:"2026-10-21", due:"2026-10-28", unit:1,
+   intro:"שלוש שאלות על שלוש מההדגמות של שיעור הפתיחה. כל אחת מתחילה ממה שראיתם בעיניים ומסתיימת בחישוב.",
+   items:["בועת הסבון: כמה גדולה תצא הבועה כשבקבוק של ליטר מתחמם ל־60 מעלות?",
+          "הנר בכוס: מה באמת העלה את המים, השריפה או הטמפרטורה?",
+          "הבלונים בחנקן הנוזלי: לאן היו צריכים להתכווץ לפי חוק הגז האידיאלי, ולמה הפחמן הדו־חמצני קרס לגמרי?"],
+   questions:"hanpatza01_questions.pdf", solution:null, solutionNote:"הפתרון המלא יעלה כאן אחרי מועד ההגשה"}
+];
+
+const STUDY_TIPS = [
+  {i:"🔎", t:"קודם תחזית, אחר כך חישוב", d:"לפני כל חישוב, נחשו מה ייצא: גדול או קטן, עולה או יורד. תחזית שהתבדתה היא בדיוק המקום שבו לומדים משהו."},
+  {i:"🌡️", t:"קלווין, תמיד", d:"בחוקי הגזים מכפילים ומחלקים רק בטמפרטורה מוחלטת. בצלזיוס אין אפס אמיתי."},
+  {i:"📏", t:"יחידות בכל שורה", d:"ליטר, מטר מעוקב, אטמוספרה, פסקל: רוב הטעויות בחישובי גזים הן טעויות יחידות, לא טעויות פיזיקה."},
+  {i:"✍️", t:"הדרך היא התשובה", d:"תשובה סופית בלי דרך לא מלמדת אותי מה הבנתם. כותבים כל שלב, ומשפט קצר שמסביר למה."}
+];
+
+/* הודעות — מה שכתוב כאן הוא מה שהתלמידים רואים */
+const ANNOUNCEMENTS = [
+  {date:"2026-10-24", title:"מטלת הנפצה 1 באתר", pinned:true,
+   body:"השאלות בלשונית ״מטלות הנפצה״. ההגשה עד יום רביעי 28.10, במייל. אני מצפה לראות את הדרך, ולא רק תשובות סופיות."},
+  {date:"2026-10-24", title:"ברוכים הבאים לאתר הקורס",
+   body:"כאן יופיעו לוח השיעורים, מטלות ההנפצה, החומרים וההודעות של הקורס. האתר יתעדכן לאורך השנה."}
+];
+
+/* ============================================================
+   2. כלי עזר
+   ============================================================ */
+const state = { page:"home" };
+const HE_DAYS=["ראשון","שני","שלישי","רביעי","חמישי","שישי","שבת"], HE_MONTHS=["ינואר","פברואר","מרץ","אפריל","מאי","יוני","יולי","אוגוסט","ספטמבר","אוקטובר","נובמבר","דצמבר"];
+function parseD(s){ const [y,m,d]=s.split("-").map(Number); return new Date(y,m-1,d); }
+function fmtDate(s){ if(!s) return "התאריך יעודכן"; const dt=parseD(s); return `יום ${HE_DAYS[dt.getDay()]}, ${dt.getDate()} ב${HE_MONTHS[dt.getMonth()]}`; }
+function fmtShort(s){ if(!s) return "—"; const dt=parseD(s); return `${dt.getDate()}.${dt.getMonth()+1}`; }
+function today(){ const t=new Date(); return new Date(t.getFullYear(),t.getMonth(),t.getDate()); }
+function esc(s){ return String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])); }
+function bidi(t){ return esc(t).replace(/(\d[\d.:]*\s?[–-]\s?\d[\d.:]*)/g,'<span class="num">$1</span>'); }
+function sessionStatus(s){ if(!s.date) return "future"; const t=today(), d=parseD(s.date); if(d.getTime()===t.getTime()) return "live"; return d<t?"past":"future"; }
+const OFF_TYPES=["open","holiday"], NON_LESSON=["open","holiday","makeup","study"];
+function sesTime(s){ if(s.type==="quiz"||s.type==="exam") return "15:00–18:00"; return parseD(s.date).getDay()===1 ? "15:00–16:30" : "15:00–17:45"; }
+function nextSession(){ return SESSIONS.find(s=>s.date && !NON_LESSON.includes(s.type) && parseD(s.date)>=today()) || null; }
+function unitSessions(id){ return SESSIONS.filter(s=>s.unit===id && s.date); }
+function unitStatusNow(u){
+  const ss=unitSessions(u.id); if(!ss.length) return "future";
+  if(ss.every(s=>parseD(s.date)<today())) return "done";
+  if(parseD(ss[0].date)<=today()) return "now";
+  const nx=nextSession(); return (nx && nx.unit===u.id) ? "now" : "future";
+}
+function hnStatus(h){ return parseD(h.due) < today() ? "closed" : "open"; }
+const fileBtn=(label, href, primary)=> href ? `<a class="btn ${primary?"btn-primary":"btn-ghost"} btn-sm" href="${esc(href)}" target="_blank" rel="noopener">${label}</a>` : `<span class="btn btn-ghost btn-sm" aria-disabled="true">${label} · בקרוב</span>`;
+
+/* ============================================================
+   3. ניווט
+   ============================================================ */
+const PAGES=[
+  {id:"home",em:"🏠",label:"בית"},{id:"calendar",em:"📅",label:"לוח השיעורים"},{id:"hanpatza",em:"💥",label:"מטלות הנפצה"},
+  {id:"units",em:"📚",label:"נושאי הקורס"},{id:"faq",em:"❓",label:"שאלות ומידע"}];
+function renderNav(){
+  document.getElementById("navBar").innerHTML=PAGES.map(p=>`<button class="nav-btn ${state.page===p.id?"active":""}" data-page="${p.id}"><span>${p.em}</span>${p.label}</button>`).join("");
+  document.querySelectorAll(".nav-btn").forEach(b=>b.onclick=()=>go(b.dataset.page));
+}
+function go(id, anchor){ state.page=id; location.hash=id+(anchor?"/"+anchor:""); renderNav(); renderPage(); if(anchor){ const el=document.getElementById(anchor); if(el) el.scrollIntoView({behavior:"smooth", block:"start"}); } else window.scrollTo({top:0,behavior:"smooth"}); }
+
+/* ============================================================
+   4. עמודים
+   ============================================================ */
+function renderPage(){
+  const fn={home:pageHome,calendar:pageCalendar,hanpatza:pageHanpatza,units:pageUnits,faq:pageFaq}[state.page]||pageHome;
+  document.getElementById("main").innerHTML=fn(); bindPage();
+}
+let JOURNEY_GO=[];
+function journey(){
+  const st=[]; JOURNEY_GO=[];
+  UNITS.filter(u=>u.sem==="א").forEach(u=>{
+    const s=unitSessions(u.id)[0]; const now=unitStatusNow(u);
+    st.push({lab:u.title, dt:s?fmtShort(s.date):"", cls:now==="done"?"done":now==="now"?"now":"", dot:String(u.id)}); JOURNEY_GO.push(()=>go("units","u"+u.id));
+    if(u.id===5){ st.push({lab:"בוחן חנוכה", dt:"7.12", cls:"milestone", dot:"📝"}); JOURNEY_GO.push(()=>go("calendar")); }
+  });
+  st.push({lab:"מבחן סוף סמסטר", dt:"22.2", cls:"milestone", dot:"🎓"}); JOURNEY_GO.push(()=>go("calendar"));
+  return `<div class="journey"><div class="track">${st.map((s,i)=>`<div class="stn ${s.cls}" data-j="${i}"><div class="dot">${s.dot}</div><div class="lab">${esc(s.lab)}</div><div class="dt">${esc(s.dt)}</div></div>`).join("")}</div></div>`;
+}
+function hnCard(h){
+  const open=hnStatus(h)==="open";
+  return `<div class="card ${open?"warn":""}" id="h${h.id}"><div class="hn">
+    <div class="n">${h.id}</div>
+    <div>
+      <h3>מטלת הנפצה ${h.id} — ${esc(h.title)}</h3>
+      <div class="meta" style="display:flex;flex-wrap:wrap;gap:6px;margin:4px 0 6px">
+        <span class="tag">ניתנה ${esc(fmtShort(h.given))}</span>
+        <span class="tag ${open?"quiz":""}">הגשה עד ${esc(fmtDate(h.due))}</span>
+        ${open?`<span class="tag now">פתוחה להגשה</span>`:`<span class="tag">ההגשה נסגרה</span>`}
+      </div>
+      <p>${esc(h.intro)}</p>
+      <ol>${h.items.map(x=>`<li>${esc(x)}</li>`).join("")}</ol>
+      <div class="links">${fileBtn("📄 השאלות",h.questions,true)} ${h.solution?fileBtn("✅ הפתרון המלא",h.solution):`<span class="btn btn-ghost btn-sm" aria-disabled="true">✅ ${esc(h.solutionNote)}</span>`}</div>
+    </div></div></div>`;
+}
+function pageHome(){
+  const nx=nextSession(); const anns=[...ANNOUNCEMENTS].sort((a,b)=>(b.pinned?1:0)-(a.pinned?1:0)||b.date.localeCompare(a.date));
+  const openH=HANPATZOT.filter(h=>hnStatus(h)==="open");
+  return `
+  <section class="hero">
+    <div class="eyebrow">תוכנית אודיסיאה · בית הספר לכימיה · אוניברסיטת תל אביב</div>
+    <h1 class="hero-title">${esc(COURSE.title)}</h1>
+    <p class="hero-sub">קורס שנתי לשנה א׳ של המסלול המדעי. בסמסטר א׳ עוברים מהגזים שלמדתם בקיץ לרמה אוניברסיטאית, דרך עבודה ואנרגיה, כוחות בין מולקולריים ותרמוכימיה, ועד אנטרופיה, אנרגיה חופשית ושיווי משקל. בסמסטר ב׳: נוזלים, מוצקים, תמיסות, מבנה האטום, הקשר הכימי וכימיה גרעינית.</p>
+    <div class="hero-meta">
+      <span class="chip blue">👨‍🏫 ${esc(COURSE.lecturer)}</span>
+      <span class="chip teal">📅 ${bidi(COURSE.semA)}</span>
+      <span class="chip">📍 ${esc(COURSE.room)}</span>
+      <span class="chip gold">📝 בוחן חנוכה 7.12 · מבחן סוף סמסטר 22.2</span>
+    </div>
+  </section>
+  ${journey()}
+  <section class="section"><div class="grid c2">
+    <div class="card accent"><h3>${nx?"השיעור הבא":"הסמסטר הסתיים"}</h3>
+      ${nx?`<p><b>${esc(fmtDate(nx.date))}</b> · <span class="num">${esc(sesTime(nx))}</span></p><p>${esc(nx.title)}</p>${nx.note?`<p class="tiny">${esc(nx.note)}</p>`:""}<div class="links"><button class="btn btn-ghost btn-sm" data-go="calendar">ללוח המלא</button></div>`:""}
+    </div>
+    <div class="card gold"><h3>הודעות</h3>${anns.slice(0,3).map(a=>`<div class="ann"><div class="d">${esc(fmtDate(a.date))}</div><b>${esc(a.title)}</b>${a.body?`<div style="font-size:13.5px;color:var(--ink-2)">${esc(a.body)}</div>`:""}</div>`).join("")}</div>
+  </div></section>
+  ${openH.length?`<section class="section"><div class="section-head"><h2>💥 פתוחה עכשיו להגשה</h2><p>מטלות הנפצה</p></div>${openH.map(hnCard).join("")}</section>`:""}
+  <section class="section"><div class="section-head"><h2>איך לומדים את הקורס הזה</h2></div>
+    <div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(min(100%,420px),1fr))">${STUDY_TIPS.map(t=>`<div class="card"><h3>${t.i} ${esc(t.t)}</h3><p>${esc(t.d)}</p></div>`).join("")}</div>
+  </section>`;
+}
+function calRows(){
+  return SESSIONS.map(s=>{ const st=sessionStatus(s);
+    const off=OFF_TYPES.includes(s.type), spec=["makeup","study","quiz","exam","review"].includes(s.type);
+    const cls=off?"off":st==="past"?"past":st==="live"?"now":spec?"spec":"";
+    const num=s.type==="lesson"||s.type==="review"?String(s.n):s.type==="quiz"||s.type==="exam"?"📝":s.type==="makeup"?"＋":"—";
+    const when=s.date?fmtDate(s.date)+(s.date&&!off&&!["quiz","exam"].includes(s.type)?" · "+sesTime(s):""):(s.when||"התאריך יעודכן");
+    return `<tr class="${cls}"><td>${num}</td><td>${bidi(when)}</td><td>${spec?"<b>":""}${bidi(s.title)}${spec?"</b>":""}${s.unit?` <button class="btn btn-ghost btn-sm" data-go="units" data-anchor="u${s.unit}">יחידה ${s.unit}</button>`:""}</td><td class="tiny">${bidi(s.note||"")}</td></tr>`; }).join("");
+}
+function pageCalendar(){
+  return `<section class="section"><div class="section-head"><h2>לוח השיעורים</h2><p>סמסטר א׳: 19.10.2026 עד 14.1.2027 · למידה למבחנים: 15.1 עד 28.2 · סמסטר ב׳: 1.3 עד 24.6.2027</p></div>
+  <h3 style="color:var(--accent-700)">סמסטר א׳ · שני <span class="num">15:00–16:30</span> · רביעי <span class="num">15:00–17:45</span> · ${esc(COURSE.room)}</h3>
+  <div style="overflow-x:auto"><table class="cal"><tr><th>#</th><th>מתי</th><th>נושא</th><th>הערה</th></tr>${calRows()}</table></div>
+  <p class="tiny" style="margin-top:10px">זה התכנון לסמסטר. אם שיעור מתבטל או נושא זז, הלוח כאן מתעדכן. לשיעורים שבוטלו יש ימי השלמות בין 3.1 ל־14.1.</p>
+  <p class="tiny">לוח סמסטר ב׳ יעלה לקראת סוף סמסטר א׳.</p>
+  </section>`;
+}
+function pageHanpatza(){
+  return `<section class="section"><div class="section-head"><h2>מטלות הנפצה</h2><p>${HANPATZOT.length===1?"מטלה אחת עד עכשיו":HANPATZOT.length+" מטלות עד עכשיו"}</p></div>
+  <div class="card gold" style="margin-bottom:16px"><h3>מה זו מטלת הנפצה?</h3>
+    <p>שאלה או כמה שאלות קשות יחסית, שאני ״מנפיץ״ על הכיתה במהלך שיעור. הן לא תרגיל בית ולא מבחן: הן אתגר שמתחיל ממשהו שראינו בכיתה ודורש לחשוב עליו עד הסוף. יש כמה ימים לפתור, ומגישים במייל או על השולחן שלי עד השיעור שנקבע.</p>
+  </div>
+  <div class="grid c2" style="margin-bottom:18px">
+    <div class="card"><div class="rule"><div class="i">✍️</div><div><h3>מראים את הדרך</h3><p>במטלות הנפצה אני מצפה לראות את הדרך, ולא רק תשובות סופיות. כל שלב בחישוב, עם יחידות, ומשפט קצר שמסביר מה עשיתם ולמה.</p></div></div></div>
+    <div class="card"><div class="rule"><div class="i">📬</div><div><h3>איך מגישים</h3><p>במייל. אפשר להקליד, ואפשר לסרוק או לצלם דפים כתובים ביד. סריקה ברורה ומסודרת עוזרת לי לקרוא ולתת לכם משוב טוב.</p></div></div></div>
+  </div>
+  ${[...HANPATZOT].reverse().map(hnCard).join("")}
+  </section>`;
+}
+function pageUnits(){
+  const a=UNITS.filter(u=>u.sem==="א"), b=UNITS.filter(u=>u.sem==="ב");
+  const card=u=>{ const ss=unitSessions(u.id); const now=unitStatusNow(u);
+    const d=ss.length?(ss.length>1?fmtShort(ss[0].date)+" עד "+fmtShort(ss[ss.length-1].date):fmtShort(ss[0].date)):"";
+    return `<div class="card hoverable" id="u${u.id}"><div class="unit"><div class="n">${u.id}</div><div>
+      <h3>יחידה ${u.id} — ${esc(u.title)}</h3>
+      <div class="meta"><span class="tag">סמסטר ${u.sem}׳</span>${d?`<span class="tag">${bidi(d)}</span>`:""}${now==="now"?`<span class="tag now">עכשיו</span>`:""}</div>
+      ${u.topics?`<div class="topics">${esc(u.topics)}</div>`:`<div class="topics tiny">הפירוט יעלה לקראת סמסטר ב׳</div>`}
+    </div></div></div>`; };
+  return `<section class="section"><div class="section-head"><h2>נושאי הקורס</h2><p>17 יחידות · החומרים של כל יחידה יעלו לאתר בזמן שנלמד אותה</p></div>
+    <h3 style="color:var(--accent-700)">סמסטר א׳ — מגזים לשיווי משקל</h3>
+    <div class="grid" style="gap:12px">${a.map(card).join("")}</div>
+    <h3 style="color:var(--accent-700);margin-top:26px">סמסטר ב׳ — מנוזלים לגרעין</h3>
+    <div class="grid c2" style="gap:12px">${b.map(card).join("")}</div>
+  </section>`;
+}
+function pageFaq(){
+  const q=[
+  ["מתי ואיפה השיעורים?","בסמסטר א׳: ימי שני 15:00–16:30 וימי רביעי 15:00–17:45 (עם הפסקה), בכיתת גלבוע. הלוח המלא בלשונית ״לוח השיעורים״."],
+  ["מה צריך לדעת לפני הקורס?","את מה שלמדתם במטלת הקיץ ובסרטוני ״מדברים כימיה״: יחידות, מול, נוסחאות, סטויכיומטריה וחוקי הגזים. משם ממשיכים לרמה אוניברסיטאית."],
+  ["מה זו מטלת הנפצה, ואיך מגישים?","שאלות אתגר שניתנות בשיעור, עם כמה ימים לפתרון. מגישים במייל עד התאריך שבמטלה, ומראים את הדרך ולא רק תשובות סופיות. הכול בלשונית ״מטלות הנפצה״."],
+  ["מתי הבחנים?","בוחן חנוכה ביום שני 7.12, 15:00–18:00, על החומר עד קירכהוף. מבחן סוף סמסטר א׳ ביום שני 22.2.2027, 15:00–18:00."],
+  ["מה קורה אם שיעור מתבטל?","בין 3.1 ל־14.1 יש ימי השלמות לשיעורים שבוטלו. הלוח באתר מתעדכן."]];
+  return `<section class="section"><div class="section-head"><h2>שאלות ומידע</h2></div>${q.map(([a,b])=>`<details><summary>${esc(a)}</summary><p>${bidi(b)}</p></details>`).join("")}</section>`;
+}
+function bindPage(){
+  document.querySelectorAll("[data-go]").forEach(b=>b.onclick=()=>go(b.dataset.go, b.dataset.anchor));
+  document.querySelectorAll(".journey .stn").forEach(el=>el.onclick=()=>{ const i=+el.dataset.j; if(JOURNEY_GO[i]) JOURNEY_GO[i](); });
+}
+document.getElementById("printBtn").onclick=()=>window.print();
+(function init(){ const h=(location.hash||"").replace("#",""); const [pg,anchor]=h.split("/"); if(PAGES.some(p=>p.id===pg)) state.page=pg; renderNav(); renderPage(); if(anchor){ const el=document.getElementById(anchor); if(el) el.scrollIntoView(); } })();
+addEventListener("hashchange",()=>{ const h=(location.hash||"").replace("#",""); const [pg]=h.split("/"); if(PAGES.some(p=>p.id===pg) && pg!==state.page){ state.page=pg; renderNav(); renderPage(); } });
+</script>
+</body>
+</html>
