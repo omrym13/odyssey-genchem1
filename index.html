@@ -128,7 +128,7 @@ input[type=password],input[type=text],textarea{font:inherit; padding:8px 10px; b
 <footer class="footer"><div class="wrap">
   <b>כימיה כללית 1</b> · תוכנית אודיסיאה · בית הספר לכימיה, אוניברסיטת תל אביב<br>
   מרצה הקורס: ד״ר עומרי מורג<br>
-  <span class="tiny">גרסה <span class="num">0.1</span> · בנייה <span class="num">2026-10-24</span> · כל החומרים באתר מיועדים לשימוש התלמידים בקורס בלבד.</span>
+  <span class="tiny">גרסה <span class="num">0.2</span> · בנייה <span class="num">2026-10-25</span> · כל החומרים באתר מיועדים לשימוש התלמידים בקורס בלבד.</span>
 </div></footer>
 <div class="toast" id="toast"></div>
 
@@ -211,6 +211,22 @@ const HANPATZOT = [
    questions:"hanpatza01_questions.pdf", solution:null, solutionNote:"הפתרון המלא יעלה כאן אחרי מועד ההגשה"}
 ];
 
+/* חומרי לימוד לפי מפגש. file:null = עוד לא עלה; note מוצג במקום הכפתור */
+const MATERIALS = [
+  {n:1, date:"2026-10-21", title:"פתיחת הקורס: מופע התחזיות", files:[
+    {label:"💥 מטלת הנפצה 1 — שאלות", file:"hanpatza01_questions.pdf", primary:true}]},
+  {n:2, date:"2026-10-26", title:"גזים ריאליים: מתי PV = nRT נשבר", files:[
+    {label:"✏️ דף תרגול כיתה — שאלות", file:"s02_practice.pdf", primary:true},
+    {label:"📘 מערך לתלמיד", file:null, note:"יעלה אחרי השיעור"},
+    {label:"🖥️ מצגת השיעור", file:null, note:"תעלה אחרי השיעור"},
+    {label:"✅ דף תרגול כיתה — פתרונות", file:null, note:"יעלו אחרי השיעור"}]}
+];
+/* תרגילי בית */
+const HOMEWORK = [
+  {id:1, title:"גזים אידיאליים וגזים ריאליים", given:"2026-10-26", due:"2026-11-02",
+   desc:"עשר שאלות. חלק א: גזים אידיאליים וסטויכיומטריה, שאלות 1 עד 5. חלק ב: גזים ריאליים, שאלות 6 עד 10.",
+   file:"hw01.pdf", solution:null}
+];
 const STUDY_TIPS = [
   {i:"🔎", t:"קודם תחזית, אחר כך חישוב", d:"לפני כל חישוב, נחשו מה ייצא: גדול או קטן, עולה או יורד. תחזית שהתבדתה היא בדיוק המקום שבו לומדים משהו."},
   {i:"🌡️", t:"קלווין, תמיד", d:"בחוקי הגזים מכפילים ומחלקים רק בטמפרטורה מוחלטת. בצלזיוס אין אפס אמיתי."},
@@ -220,7 +236,9 @@ const STUDY_TIPS = [
 
 /* הודעות — מה שכתוב כאן הוא מה שהתלמידים רואים */
 const ANNOUNCEMENTS = [
-  {date:"2026-10-24", title:"מטלת הנפצה 1 באתר", pinned:true,
+  {date:"2026-10-26", title:"תרגיל בית 1 עלה", pinned:true,
+   body:"גזים אידיאליים וגזים ריאליים, עשר שאלות. ההגשה עד יום שני 2.11. התרגיל בלשונית ״תרגילי בית״."},
+  {date:"2026-10-24", title:"מטלת הנפצה 1 באתר",
    body:"השאלות בלשונית ״מטלות הנפצה״. ההגשה עד יום רביעי 28.10, במייל. אני מצפה לראות את הדרך, ולא רק תשובות סופיות."},
   {date:"2026-10-24", title:"ברוכים הבאים לאתר הקורס",
    body:"כאן יופיעו לוח השיעורים, מטלות ההנפצה, החומרים וההודעות של הקורס. האתר יתעדכן לאורך השנה."}
@@ -255,7 +273,7 @@ const fileBtn=(label, href, primary)=> href ? `<a class="btn ${primary?"btn-prim
    3. ניווט
    ============================================================ */
 const PAGES=[
-  {id:"home",em:"🏠",label:"בית"},{id:"calendar",em:"📅",label:"לוח השיעורים"},{id:"hanpatza",em:"💥",label:"מטלות הנפצה"},
+  {id:"home",em:"🏡",label:"בית"},{id:"calendar",em:"📅",label:"לוח השיעורים"},{id:"materials",em:"📄",label:"חומרי לימוד"},{id:"homework",em:"🏠",label:"תרגילי בית"},{id:"hanpatza",em:"💥",label:"מטלות הנפצה"},
   {id:"units",em:"📚",label:"נושאי הקורס"},{id:"faq",em:"❓",label:"שאלות ומידע"}];
 function renderNav(){
   document.getElementById("navBar").innerHTML=PAGES.map(p=>`<button class="nav-btn ${state.page===p.id?"active":""}" data-page="${p.id}"><span>${p.em}</span>${p.label}</button>`).join("");
@@ -267,7 +285,7 @@ function go(id, anchor){ state.page=id; location.hash=id+(anchor?"/"+anchor:"");
    4. עמודים
    ============================================================ */
 function renderPage(){
-  const fn={home:pageHome,calendar:pageCalendar,hanpatza:pageHanpatza,units:pageUnits,faq:pageFaq}[state.page]||pageHome;
+  const fn={home:pageHome,calendar:pageCalendar,materials:pageMaterials,homework:pageHomework,hanpatza:pageHanpatza,units:pageUnits,faq:pageFaq}[state.page]||pageHome;
   document.getElementById("main").innerHTML=fn(); bindPage();
 }
 let JOURNEY_GO=[];
@@ -299,7 +317,7 @@ function hnCard(h){
 }
 function pageHome(){
   const nx=nextSession(); const anns=[...ANNOUNCEMENTS].sort((a,b)=>(b.pinned?1:0)-(a.pinned?1:0)||b.date.localeCompare(a.date));
-  const openH=HANPATZOT.filter(h=>hnStatus(h)==="open");
+  const openH=HANPATZOT.filter(h=>hnStatus(h)==="open"); const openHW=HOMEWORK.filter(h=>parseD(h.due)>=today());
   return `
   <section class="hero">
     <div class="eyebrow">תוכנית אודיסיאה · בית הספר לכימיה · אוניברסיטת תל אביב</div>
@@ -319,7 +337,7 @@ function pageHome(){
     </div>
     <div class="card gold"><h3>הודעות</h3>${anns.slice(0,3).map(a=>`<div class="ann"><div class="d">${esc(fmtDate(a.date))}</div><b>${esc(a.title)}</b>${a.body?`<div style="font-size:13.5px;color:var(--ink-2)">${esc(a.body)}</div>`:""}</div>`).join("")}</div>
   </div></section>
-  ${openH.length?`<section class="section"><div class="section-head"><h2>💥 פתוחה עכשיו להגשה</h2><p>מטלות הנפצה</p></div>${openH.map(hnCard).join("")}</section>`:""}
+  ${(openH.length||openHW.length)?`<section class="section"><div class="section-head"><h2>📬 פתוח עכשיו להגשה</h2></div>${openHW.map(hwCard).join("")}${openH.map(hnCard).join("")}</section>`:""}
   <section class="section"><div class="section-head"><h2>איך לומדים את הקורס הזה</h2></div>
     <div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(min(100%,420px),1fr))">${STUDY_TIPS.map(t=>`<div class="card"><h3>${t.i} ${esc(t.t)}</h3><p>${esc(t.d)}</p></div>`).join("")}</div>
   </section>`;
@@ -367,6 +385,22 @@ function pageUnits(){
     <h3 style="color:var(--accent-700);margin-top:26px">סמסטר ב׳ — מנוזלים לגרעין</h3>
     <div class="grid c2" style="gap:12px">${b.map(card).join("")}</div>
   </section>`;
+}
+function pageMaterials(){
+  return `<section class="section"><div class="section-head"><h2>חומרי לימוד</h2><p>לפי מפגש · הקבצים נפתחים בחלון חדש</p></div>
+  ${[...MATERIALS].reverse().map(m=>`<div class="card" style="margin-bottom:12px"><h3>מפגש ${m.n} — ${bidi(m.title)}</h3><p class="tiny">${esc(fmtDate(m.date))}</p><div class="links">${m.files.map(f=>f.file?fileBtn(f.label,f.file,f.primary):`<span class="btn btn-ghost btn-sm" aria-disabled="true">${f.label} · ${esc(f.note||"בקרוב")}</span>`).join(" ")}</div></div>`).join("")}
+  </section>`;
+}
+function hwCard(h){
+  const open=parseD(h.due)>=today();
+  return `<div class="card ${open?"accent":""}" style="margin-bottom:12px"><h3>תרגיל בית ${h.id} — ${esc(h.title)}</h3>
+    <div style="display:flex;flex-wrap:wrap;gap:6px;margin:4px 0 6px"><span class="tag">ניתן ${esc(fmtShort(h.given))}</span><span class="tag ${open?"quiz":""}">הגשה עד ${esc(fmtDate(h.due))}</span></div>
+    <p>${esc(h.desc)}</p>
+    <div class="links">${fileBtn("📄 התרגיל",h.file,true)} ${h.solution?fileBtn("✅ פתרון מלא",h.solution):`<span class="btn btn-ghost btn-sm" aria-disabled="true">✅ הפתרון יעלה אחרי מועד ההגשה</span>`}</div></div>`;
+}
+function pageHomework(){
+  return `<section class="section"><div class="section-head"><h2>תרגילי בית</h2><p>פתרון מלא, כל שלב עם יחידות · תשובה סופית בלי דרך לא מקבלת ניקוד</p></div>
+  ${[...HOMEWORK].reverse().map(hwCard).join("")}</section>`;
 }
 function pageFaq(){
   const q=[
