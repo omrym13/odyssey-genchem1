@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>מעבדת הגז הקינטי · כימיה כללית 1</title>
+<style>
+:root{
+  --navy:#0F2E4C; --terra:#B8482C; --parch:#F4EFE6;
+  --gold:#C9A227; --green:#2E6F40;
+  --ink:#1a1a1a; --panel:#ffffff; --muted:#5d6b7a; --line:#c9d4e3;
+  --box:#fbf8f2; --ghost:#8a97a6;
+}
+[data-theme="dark"]{
+  --parch:#12181f; --panel:#1b232d; --ink:#eaf0f6; --muted:#9fb0c2; --line:#2c3b4d;
+  --box:#0f151c; --navy:#8fb3d9; --ghost:#6c7b8c;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;-webkit-text-size-adjust:100%}
+body{font-family:"Heebo","Assistant","Arial Hebrew",system-ui,sans-serif;
+  background:var(--parch);color:var(--ink);font-size:15px;line-height:1.6;
+  padding-bottom:env(safe-area-inset-bottom)}
+header{display:flex;align-items:center;justify-content:space-between;gap:12px;
+  padding:14px 18px;background:#0F2E4C;color:#fff}
+header h1{margin:0;font-size:19px;font-weight:800;line-height:1.3}
+header h1 small{display:block;font-size:13px;font-weight:500;opacity:.85}
+.hbtns{display:flex;gap:8px;flex-wrap:wrap}
+.hbtn{background:transparent;color:#fff;border:1.5px solid rgba(255,255,255,.55);
+  border-radius:9px;padding:8px 12px;font:inherit;cursor:pointer;min-height:44px;font-weight:700}
+.hbtn[aria-pressed="true"]{background:#C9A227;color:#0F2E4C;border-color:#C9A227}
+nav.tabs{display:flex;flex-wrap:wrap;gap:6px;padding:10px 14px;background:var(--panel);
+  border-bottom:1px solid var(--line)}
+nav.tabs button{font:inherit;font-weight:700;cursor:pointer;padding:9px 14px;min-height:44px;
+  background:transparent;color:var(--muted);border:none;border-bottom:3px solid transparent;
+  border-radius:6px 6px 0 0}
+nav.tabs button[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--gold)}
+.panel{display:none;padding:16px 18px 28px;max-width:1240px;margin:0 auto}
+.panel.active{display:block}
+.intro{margin:0 0 14px;color:var(--muted)}
+.layout{display:flex;gap:18px;align-items:flex-start}
+.controls{flex:0 0 300px;background:var(--panel);border:1px solid var(--line);
+  border-radius:12px;padding:14px}
+.stage{flex:1 1 auto;min-width:0;display:flex;flex-direction:column;gap:14px}
+.plot{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:10px}
+canvas{width:100%;display:block;touch-action:pan-y}
+.lab{display:grid;grid-template-columns:300px minmax(0,1fr);grid-template-areas:"ctl plot" "ctl cards";gap:14px 18px;align-items:start}
+.lab .controls{grid-area:ctl}.lab .plot{grid-area:plot}.lab .cards{grid-area:cards}
+#cBox{aspect-ratio:17/10}
+#cHist{aspect-ratio:5/3}
+@media (max-width:760px){.layout{flex-direction:column}.controls{flex:1 1 auto;width:100%}.stage{order:-1}
+  .lab{grid-template-columns:minmax(0,1fr);grid-template-areas:"plot" "ctl" "cards"}
+  .controls .gases{grid-template-columns:repeat(3,1fr)}
+  .gas{padding:5px 6px}.gas b{font-size:12.5px;white-space:nowrap}.gas span{font-size:11px;white-space:nowrap}
+  #cHist{aspect-ratio:4/3}}
+h3{margin:0 0 8px;font-size:15px}
+.ctl{display:block;margin:0 0 14px;font-weight:700}
+.ctl .val{float:left;font-weight:800;color:var(--terra);direction:ltr;unicode-bidi:isolate}
+input[type=range]{width:100%;margin-top:6px;accent-color:#B8482C;direction:ltr}
+.chips{display:flex;gap:6px;margin:0 0 12px}
+.chip{font:inherit;font-weight:700;cursor:pointer;min-height:40px;border-radius:9px;padding:4px 10px;border:2px solid var(--line);background:var(--panel);color:var(--ink);direction:ltr;flex:1}
+.chip[aria-pressed="true"]{border-color:#0F2E4C;background:#0F2E4C;color:#fff}
+[data-theme="dark"] .chip[aria-pressed="true"]{border-color:#C9A227;background:#C9A227;color:#12181f}
+.gases{display:grid;grid-template-columns:repeat(2,1fr);gap:6px;margin:0 0 14px}
+.gas{font:inherit;cursor:pointer;border:2px solid var(--line);background:var(--panel);
+  color:var(--ink);border-radius:10px;padding:6px 8px;min-height:44px;text-align:right;line-height:1.25}
+.gas b{display:block;font-size:14px}
+.gas span{display:block;direction:ltr;unicode-bidi:isolate;text-align:right;font-size:12px;color:var(--muted)}
+.gas[aria-pressed="true"]{border-color:#B8482C;background:#B8482C;color:#fff}
+.gas[aria-pressed="true"] span{color:#fbe3dc}
+.row{display:flex;gap:8px;flex-wrap:wrap}
+.btn{font:inherit;font-weight:800;cursor:pointer;min-height:44px;border-radius:10px;
+  padding:8px 12px;border:2px solid var(--navy);background:transparent;color:var(--ink);flex:1 1 auto}
+.btn[aria-pressed="true"]{background:#0F2E4C;color:#fff;border-color:#0F2E4C}
+[data-theme="dark"] .btn[aria-pressed="true"]{background:#C9A227;color:#12181f;border-color:#C9A227}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:10px 12px}
+.card .lab{font-weight:700;font-size:14px;color:var(--muted)}
+.card .sym{direction:ltr;unicode-bidi:isolate;font-size:12px;color:var(--muted);display:block;text-align:right}
+.card .num{direction:ltr;unicode-bidi:isolate;display:block;text-align:right;font-size:26px;
+  font-weight:800;color:var(--navy);line-height:1.2;font-variant-numeric:tabular-nums}
+.card .unit{direction:ltr;unicode-bidi:isolate;display:block;text-align:right;font-size:13px;color:var(--muted)}
+.card.meas{border:2px solid var(--gold)}
+.card.meas .num{color:#B8482C}
+.measline{font-size:13px;color:var(--muted);margin-top:4px}
+.measline .ltr{direction:ltr;unicode-bidi:isolate}
+.banner{background:var(--panel);border-right:5px solid var(--gold);border-radius:8px;
+  padding:10px 14px;margin-top:14px}
+.hint{font-size:13px;color:var(--muted);margin-top:10px}
+.legend{display:flex;gap:16px;flex-wrap:wrap;font-size:13px;margin-top:6px;color:var(--muted)}
+.sw{display:inline-block;width:14px;height:10px;border-radius:2px;margin-left:5px;vertical-align:middle}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>מעבדת הגז הקינטי<small>כימיה כללית 1 · אודיסיאה</small></h1>
+  <div class="hbtns">
+    <button class="hbtn" id="pauseBtn" type="button" aria-pressed="false">השהיה</button>
+    <button class="hbtn" id="themeBtn" type="button">מצב לילה</button>
+  </div>
+</header>
+
+<nav class="tabs" id="tabs" role="tablist">
+  <button role="tab" aria-selected="true" data-tab="tLab">א · מעבדת הגז</button>
+  <button role="tab" aria-selected="false" data-tab="tDist">ב · התפלגות המהירויות</button>
+</nav>
+
+<!-- ============ TAB A ============ -->
+<section class="panel active" id="tLab" role="tabpanel">
+  <p class="intro">קופסה עם גז שאפשר להסתכל לתוכו. כל חלקיק נע, מתנגש בחלקיקים אחרים ופוגע בדפנות. הלחץ כאן לא מחושב מנוסחה — הוא נמדד מהפגיעות בדפנות.</p>
+  <div class="lab">
+    <div class="controls">
+      <h3>הגז</h3>
+      <div class="gases" id="gasesA"></div>
+      <label class="ctl">טמפרטורה <span class="val" id="vT">300 K</span>
+        <input type="range" id="sT" min="100" max="900" step="10" value="300"></label>
+      <label class="ctl">מספר החלקיקים <span class="val" id="vN">200</span>
+        <input type="range" id="sN" min="20" max="200" step="10" value="200"></label>
+      <label class="ctl">נפח (שטח הקופסה) <span class="val" id="vV">7000 nm²</span>
+        <input type="range" id="sV" min="40" max="130" step="1" value="100"></label>
+      <div class="row">
+        <button class="btn" id="reshuffle" type="button">ערבוב מחדש</button>
+      </div>
+      <p class="hint">ערבוב מחדש מגריל מחדש את המקומות והמהירויות של כל החלקיקים.</p>
+    </div>
+      <div class="plot"><canvas id="cBox"></canvas>
+        <div class="legend"><span>צבע החלקיק מראה כמה מהר הוא נע:</span>
+          <span>איטי <i class="sw" style="width:90px;background:linear-gradient(to left,hsl(215,70%,42%),hsl(110,70%,47%),hsl(10,70%,52%))"></i> מהיר</span></div></div>
+      <div class="cards">
+        <div class="card"><div class="lab">טמפרטורה</div><span class="sym">T</span>
+          <span class="num" id="rT">300</span><span class="unit">K</span></div>
+        <div class="card"><div class="lab">אנרגיה קינטית ממוצעת לחלקיק</div><span class="sym">⟨KE⟩</span>
+          <span class="num" id="rKE">—</span><span class="unit">×10⁻²¹ J</span></div>
+        <div class="card"><div class="lab">מהירות טיפוסית</div><span class="sym">v<sub>rms</sub></span>
+          <span class="num" id="rV">—</span><span class="unit">m/s</span></div>
+        <div class="card"><div class="lab">לחץ × נפח, ברגע זה</div><span class="sym">PV</span>
+          <span class="num" id="rPV">—</span><span class="unit">×10⁻²¹ J</span></div>
+        <div class="card meas"><div class="lab">לחץ × נפח, ממוצע המדידה</div><span class="sym">⟨PV⟩</span>
+          <span class="num" id="rPVm">—</span><span class="unit">×10⁻²¹ J</span>
+          <button class="btn" id="measBtn" type="button" aria-pressed="false" style="margin-top:6px;width:100%">▶ התחילו מדידה</button>
+          <div class="measline" id="measInfo">המדידה ממצעת מרגע הלחיצה.</div></div>
+      </div>
+  </div>
+  <div class="banner">רשמו מספר רק אחרי שהוא התייצב. את הלחץ כפול הנפח מודדים עם כפתור המדידה: לוחצים, מחכים לפחות 20 שניות, ורק אז רושמים.</div>
+  <p class="hint">העולם בסימולטור שטוח, דו־ממדי. לכן הנפח הוא בעצם שטח הקופסה, והלחץ הוא כוח לכל מטר של דופן. אפשר גם לגרור את הדופן הימנית של הקופסה.</p>
+</section>
+
+<!-- ============ TAB B ============ -->
+<section class="panel" id="tDist" role="tabpanel">
+  <p class="intro">לא לכל החלקיקים יש אותה מהירות. כאן רואים כמה חלקיקים נעים בכל מהירות — אותו גז ואותה קופסה כמו בלשונית א.</p>
+  <div class="layout">
+    <div class="controls">
+      <h3>הגז</h3>
+      <div class="gases" id="gasesB"></div>
+      <label class="ctl">טמפרטורה <span class="val" id="vT2">300 K</span>
+        <input type="range" id="sT2" min="100" max="900" step="10" value="300"></label>
+      <div class="ctl" style="margin-bottom:6px">טווח ציר המהירות</div>
+      <div class="chips" id="rangeChips">
+        <button class="chip" type="button" data-v="1000" aria-pressed="false">0–1000</button>
+        <button class="chip" type="button" data-v="2000" aria-pressed="false">0–2000</button>
+        <button class="chip" type="button" data-v="4000" aria-pressed="true">0–4000</button>
+      </div>
+      <div class="row">
+        <button class="btn" id="curveBtn" type="button" aria-pressed="false">עקומה חלקה — מוסתרת</button>
+      </div>
+      <div class="row" style="margin-top:8px">
+        <button class="btn" id="freezeBtn" type="button">הקפיאו להשוואה</button>
+        <button class="btn" id="clearGhost" type="button">נקו</button>
+      </div>
+      <p class="hint">״הקפיאו להשוואה״ שומר את ההתפלגות הנוכחית כקו אפור מקווקו. אחר כך שנו גז או טמפרטורה והשוו.</p>
+    </div>
+    <div class="stage">
+      <div class="plot"><canvas id="cHist"></canvas>
+        <div class="legend">
+          <span><i class="sw" style="background:#B8482C"></i>החלקיקים בקופסה עכשיו</span>
+          <span><i class="sw" style="background:#C9A227;height:3px"></i>המהירות הטיפוסית שבלשונית א</span>
+          <span id="lgCurve" style="display:none"><i class="sw" style="background:var(--navy)"></i>עקומה חלקה</span>
+          <span id="lgGhost" style="display:none"><i class="sw" style="background:var(--ghost)"></i><span id="ghostName">ההתפלגות שהוקפאה</span></span>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="banner">שאלה לחשוב עליה: מה משתנה בצורה של ההתפלגות כשמחממים? ומה משתנה כשמחליפים לגז כבד יותר באותה טמפרטורה?</div>
+</section>
+
+<script>
+"use strict";
+/* ============================================================
+   Physics: 2-D hard-disc ideal-ish gas, real SI units.
+   positions in nm, velocities in m/s (= nm/ns), time in ns.
+   Pressure is MEASURED: impulse delivered to all four walls.
+   ============================================================ */
+const KB = 1.380649e-23, NA = 6.02214076e23;
+const H_NM = 70;                 // box height (nm), fixed
+const R_NM = 0.45;               // disc radius (nm)
+const TS = 0.147;                // ns of real time per second of screen time
+const GASES = [
+  {id:'H2', he:'מימן',            f:'H₂',  M:2.016},
+  {id:'He', he:'הליום',           f:'He',  M:4.003},
+  {id:'N2', he:'חנקן',            f:'N₂',  M:28.014},
+  {id:'O2', he:'חמצן',            f:'O₂',  M:31.998},
+  {id:'Ar', he:'ארגון',           f:'Ar',  M:39.948},
+  {id:'CO2',he:'פחמן דו־חמצני',   f:'CO₂', M:44.009},
+  {id:'Xe', he:'קסנון',           f:'Xe',  M:131.29}
+];
+const S = {
+  gas: GASES[2], m: GASES[2].M/1000/NA, T: 300, N: 200, W: 100,
+  parts: [], paused:false, tab:'tLab',
+  // live pressure: exponential window over screen time
+  liveImp: 0, liveTime: 0,
+  // measurement accumulator
+  meas: false, mImp: 0, mTimeNs: 0, mVolTime: 0, mHits: 0, mStart: 0,
+  hist: new Float64Array(40), histN: 0, histTot: 0, showCurve:false, ghost:null
+};
+function gauss(){ let u=0; while(!u) u=Math.random(); return Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*Math.random()); }
+function sigma(){ return Math.sqrt(KB*S.T/S.m); }   // per-component speed spread, m/s
+function newParticle(){
+  for(let k=0;k<400;k++){
+    const x=R_NM+Math.random()*(S.W-2*R_NM), y=R_NM+Math.random()*(H_NM-2*R_NM);
+    let ok=true;
+    for(const q of S.parts){ const dx=q.x-x, dy=q.y-y; if(dx*dx+dy*dy<4*R_NM*R_NM){ok=false;break;} }
+    if(ok){ const s=sigma(); return {x,y,vx:s*gauss(),vy:s*gauss()}; }
+  }
+  const s=sigma(); return {x:R_NM+Math.random()*(S.W-2*R_NM), y:R_NM+Math.random()*(H_NM-2*R_NM), vx:s*gauss(), vy:s*gauss()};
+}
+function reshuffle(){ S.parts=[]; for(let i=0;i<S.N;i++) S.parts.push(newParticle()); resetPressure(); S.hist.fill(0); S.histN=0; S.histTot=0; }
+function resetPressure(){ S.liveImp=0; S.liveTime=0; stopMeas(true); }
+function setN(n){
+  while(S.parts.length<n) S.parts.push(newParticle());
+  if(S.parts.length>n) S.parts.length=n;
+  S.N=n; resetPressure();
+}
+function setT(T){
+  const f=Math.sqrt(T/S.T); for(const p of S.parts){p.vx*=f;p.vy*=f;}
+  S.T=T; resetPressure();
+}
+function setGas(g){
+  const mNew=g.M/1000/NA, f=Math.sqrt(S.m/mNew);
+  for(const p of S.parts){p.vx*=f;p.vy*=f;}
+  S.gas=g; S.m=mNew; resetPressure(); S.hist.fill(0); S.histN=0; S.histTot=0;
+}
+function setW(W){
+  S.W=W;
+  for(const p of S.parts){ if(p.x>W-R_NM){ p.x=W-R_NM-Math.random()*Math.min(5,W/4); p.vx=-Math.abs(p.vx);} }
+  resetPressure();
+}
+function meanV2(){ let s=0; for(const p of S.parts) s+=p.vx*p.vx+p.vy*p.vy; return s/Math.max(1,S.parts.length); }
+
+/* one physics advance by dtNs nanoseconds, in sub-steps */
+function advance(dtNs){
+  const ps=S.parts, n=ps.length; if(!n) return {imp:0,hits:0};
+  let vmax=0; for(const p of ps){ const v=Math.hypot(p.vx,p.vy); if(v>vmax) vmax=v; }
+  let nsub=Math.ceil(vmax*dtNs/(0.5*R_NM)); nsub=Math.max(1,Math.min(nsub,160));
+  const h=dtNs/nsub, W=S.W, Hh=H_NM, R=R_NM, D2=4*R*R, m=S.m;
+  let imp=0, hits=0;
+  const idx=new Array(n); for(let i=0;i<n;i++) idx[i]=i;
+  for(let s=0;s<nsub;s++){
+    for(const p of ps){
+      p.x+=p.vx*h; p.y+=p.vy*h;
+      if(p.x<R){ p.x=2*R-p.x; if(p.vx<0){imp+=2*m*(-p.vx);hits++;} p.vx=Math.abs(p.vx); }
+      else if(p.x>W-R){ p.x=2*(W-R)-p.x; if(p.vx>0){imp+=2*m*p.vx;hits++;} p.vx=-Math.abs(p.vx); }
+      if(p.y<R){ p.y=2*R-p.y; if(p.vy<0){imp+=2*m*(-p.vy);hits++;} p.vy=Math.abs(p.vy); }
+      else if(p.y>Hh-R){ p.y=2*(Hh-R)-p.y; if(p.vy>0){imp+=2*m*p.vy;hits++;} p.vy=-Math.abs(p.vy); }
+    }
+    // sweep-and-prune on x for disc-disc collisions (equal masses, elastic)
+    idx.sort((a,b)=>ps[a].x-ps[b].x);
+    for(let a=0;a<n;a++){
+      const pi=ps[idx[a]];
+      for(let b=a+1;b<n;b++){
+        const pj=ps[idx[b]], dx=pj.x-pi.x; if(dx>=2*R) break;
+        const dy=pj.y-pi.y, d2=dx*dx+dy*dy;
+        if(d2<D2 && d2>1e-12){
+          const d=Math.sqrt(d2), nx=dx/d, ny=dy/d;
+          const vn=(pj.vx-pi.vx)*nx+(pj.vy-pi.vy)*ny;
+          if(vn<0){ pi.vx+=vn*nx; pi.vy+=vn*ny; pj.vx-=vn*nx; pj.vy-=vn*ny; }
+        }
+      }
+    }
+  }
+  return {imp,hits};
+}
+
+/* ============================================================
+   Drawing helpers (see the simulator skill: dpr, bidi, clipping)
+   ============================================================ */
+function setupCanvas(canvas){
+  const dpr=window.devicePixelRatio||1;
+  const cssW=canvas.clientWidth||(canvas.parentElement&&canvas.parentElement.clientWidth)||640;
+  const cssH=canvas.clientHeight||Math.round(cssW*0.6);
+  if(canvas.width!==Math.round(cssW*dpr)||canvas.height!==Math.round(cssH*dpr)){
+    canvas.width=Math.round(cssW*dpr); canvas.height=Math.round(cssH*dpr);
+  }
+  const ctx=canvas.getContext('2d'); ctx.setTransform(dpr,0,0,dpr,0,0); ctx.clearRect(0,0,cssW,cssH);
+  return {ctx,w:cssW,h:cssH};
+}
+function heText(ctx,t,x,y,al){ctx.save();ctx.direction='rtl';ctx.textAlign=al||'right';ctx.fillText(t,x,y);ctx.restore();}
+function ltrText(ctx,t,x,y,al){ctx.save();ctx.direction='ltr';ctx.textAlign=al||'left';ctx.fillText(t,x,y);ctx.restore();}
+function css(n){return getComputedStyle(document.documentElement).getPropertyValue(n).trim();}
+
+let boxGeom=null;
+function drawBox(){
+  const c=document.getElementById('cBox'); const {ctx,w,h}=setupCanvas(c);
+  const pad=14, Wmax=130;
+  const sc=Math.min((w-2*pad)/Wmax,(h-2*pad-18)/H_NM);
+  const x0=pad, y0=pad+4, bw=S.W*sc, bh=H_NM*sc;
+  boxGeom={x0,y0,sc,bh};
+  ctx.fillStyle=css('--box'); ctx.fillRect(x0,y0,Wmax*sc,bh);
+  ctx.fillStyle=css('--panel'); ctx.globalAlpha=.6; ctx.fillRect(x0+bw,y0,(Wmax-S.W)*sc,bh); ctx.globalAlpha=1;
+  // particles, coloured by speed relative to the current typical speed
+  const vr=Math.sqrt(meanV2())||1, rpx=Math.max(3,R_NM*sc);
+  for(const p of S.parts){
+    const f=Math.min(1,Math.hypot(p.vx,p.vy)/1500);
+    ctx.fillStyle=`hsl(${215-205*f},70%,${42+10*f}%)`;
+    ctx.beginPath(); ctx.arc(x0+p.x*sc,y0+p.y*sc,rpx,0,Math.PI*2); ctx.fill();
+  }
+  // walls
+  ctx.strokeStyle=css('--navy'); ctx.lineWidth=3;
+  ctx.beginPath(); ctx.moveTo(x0+bw,y0); ctx.lineTo(x0,y0); ctx.lineTo(x0,y0+bh); ctx.lineTo(x0+bw,y0+bh); ctx.stroke();
+  ctx.strokeStyle='#B8482C'; ctx.lineWidth=6;
+  ctx.beginPath(); ctx.moveTo(x0+bw,y0-4); ctx.lineTo(x0+bw,y0+bh+4); ctx.stroke();
+  // grip marks on the movable wall
+  ctx.fillStyle='#B8482C'; ctx.fillRect(x0+bw-7,y0+bh/2-14,14,28);
+  ctx.strokeStyle='#fff'; ctx.lineWidth=1.5;
+  for(const dy of [-6,0,6]){ctx.beginPath();ctx.moveTo(x0+bw-4,y0+bh/2+dy);ctx.lineTo(x0+bw+4,y0+bh/2+dy);ctx.stroke();}
+  // scale bar: 20 nm
+  const sbx=x0+6, sby=y0+bh+12;
+  ctx.strokeStyle=css('--muted'); ctx.lineWidth=2;
+  ctx.beginPath(); ctx.moveTo(sbx,sby); ctx.lineTo(sbx+20*sc,sby); ctx.stroke();
+  ctx.fillStyle=css('--muted'); ctx.font='700 12px Heebo, Arial, sans-serif';
+  ltrText(ctx,'20 nm',sbx+20*sc+6,sby+4,'left');
+}
+
+function niceStep(range,px,per){ const n=Math.max(2,Math.floor(px/per)); const raw=range/n;
+  const p=Math.pow(10,Math.floor(Math.log10(raw))); const r=raw/p; return (r<=1?1:r<=2?2:r<=5?5:10)*p; }
+let VMAX=4000; const NB=40;
+function curveFrac(v,T,m){ // 2-D Maxwell speed distribution, fraction per m/s
+  const a=m/(KB*T); return a*v*Math.exp(-a*v*v/2); }
+function drawHist(){
+  const c=document.getElementById('cHist'); const {ctx,w,h}=setupCanvas(c);
+  const M={l:62,r:16,t:34,b:58}; const x0=M.l,x1=w-M.r,y0=h-M.b,y1=M.t;
+  const bw=VMAX/NB;
+  const frac=new Float64Array(NB); const tot=S.histTot||1;
+  for(let i=0;i<NB;i++) frac[i]=100*S.hist[i]/tot;
+  let ymax=5; for(let i=0;i<NB;i++) ymax=Math.max(ymax,frac[i]);
+  if(S.ghost) for(let i=0;i<NB;i++) ymax=Math.max(ymax,S.ghost.frac[i]*bw/S.ghost.bw);
+  if(S.showCurve){ for(let v=0;v<VMAX;v+=20) ymax=Math.max(ymax,100*bw*curveFrac(v,S.T,S.m)); }
+  ymax=Math.ceil(ymax*1.1/5)*5;
+  const X=v=>x0+v/VMAX*(x1-x0), Y=f=>y0-f/ymax*(y0-y1);
+  // grid + ticks
+  ctx.font='700 12px Heebo, Arial, sans-serif';
+  const xs=niceStep(VMAX,x1-x0,85), ys=niceStep(ymax,y0-y1,62);
+  ctx.strokeStyle=css('--line'); ctx.lineWidth=1; ctx.fillStyle=css('--muted');
+  for(let v=0;v<=VMAX+1;v+=xs){ ctx.beginPath(); ctx.moveTo(X(v),y0); ctx.lineTo(X(v),y1); ctx.stroke(); ltrText(ctx,String(v),X(v),y0+17,'center'); }
+  for(let f=0;f<=ymax+1e-9;f+=ys){ ctx.beginPath(); ctx.moveTo(x0,Y(f)); ctx.lineTo(x1,Y(f)); ctx.stroke(); ltrText(ctx,String(+f.toFixed(1)),x0-7,Y(f)+4,'right'); }
+  // bars
+  ctx.fillStyle='#B8482C'; ctx.globalAlpha=.85;
+  for(let i=0;i<NB;i++){ const a=X(i*bw)+1, b=X((i+1)*bw)-1; ctx.fillRect(a,Y(frac[i]),Math.max(1,b-a),y0-Y(frac[i])); }
+  ctx.globalAlpha=1;
+  // ghost
+  if(S.ghost){ ctx.strokeStyle=css('--ghost'); ctx.lineWidth=2.5; ctx.setLineDash([7,5]); ctx.beginPath();
+    const gb=S.ghost.bw; ctx.save(); ctx.beginPath(); ctx.rect(x0,y1-4,x1-x0,y0-y1+4); ctx.clip(); ctx.beginPath();
+    for(let i=0;i<NB;i++){ const xa=X(i*gb), xb=X((i+1)*gb), y=Y(S.ghost.frac[i]*bw/gb); if(i===0) ctx.moveTo(xa,y0); ctx.lineTo(xa,y); ctx.lineTo(xb,y);} ctx.stroke(); ctx.restore(); ctx.setLineDash([]); }
+  // the typical speed (v_rms) of the particles now — same number as in tab A
+  { const vr=Math.sqrt(meanV2()); if(vr<VMAX){ ctx.strokeStyle='#C9A227'; ctx.lineWidth=3; ctx.setLineDash([3,4]);
+    ctx.beginPath(); ctx.moveTo(X(vr),y0); ctx.lineTo(X(vr),y1); ctx.stroke(); ctx.setLineDash([]); } }
+  // smooth curve
+  if(S.showCurve){ ctx.strokeStyle=css('--navy'); ctx.lineWidth=2.5; ctx.beginPath();
+    for(let v=0;v<=VMAX;v+=10){ const y=Y(100*bw*curveFrac(v,S.T,S.m)); v===0?ctx.moveTo(X(v),y):ctx.lineTo(X(v),y);} ctx.stroke(); }
+  // axes
+  ctx.strokeStyle=css('--navy'); ctx.lineWidth=1.6;
+  ctx.beginPath(); ctx.moveTo(x0,y1); ctx.lineTo(x0,y0); ctx.lineTo(x1,y0); ctx.stroke();
+  ctx.fillStyle=css('--ink'); ctx.font='800 13px Heebo, Arial, sans-serif';
+  heText(ctx,'מהירות החלקיק',(x0+x1)/2,h-24,'center');
+  ctx.font='700 12px Heebo, Arial, sans-serif'; ltrText(ctx,'[m/s]',(x0+x1)/2,h-8,'center');
+  ctx.font='800 13px Heebo, Arial, sans-serif';
+  heText(ctx,'אחוז מהחלקיקים',x0+130,y1-18,'right');
+  ctx.font='700 12px Heebo, Arial, sans-serif'; ltrText(ctx,'[%]',x0+136,y1-18,'left');
+}
+
+/* ============================================================
+   Readouts
+   ============================================================ */
+function fmt(x,d){ return Number.isFinite(x)? x.toFixed(d) : '—'; }
+let lastReadout=0;
+function updateReadouts(now){
+  if(now-lastReadout<250) return; lastReadout=now;
+  const v2=meanV2(), KE=0.5*S.m*v2;
+  document.getElementById('rT').textContent=S.T;
+  document.getElementById('rKE').textContent=fmt(KE*1e21,2);
+  document.getElementById('rV').textContent=fmt(Math.sqrt(v2),0);
+  const per=2*(S.W+H_NM)*1e-9, area=S.W*H_NM*1e-18;
+  if(S.liveTime>0){ const P=S.liveImp/(S.liveTime*1e-9)/per; document.getElementById('rPV').textContent=fmt(P*area*1e21,0); }
+  else document.getElementById('rPV').textContent='—';
+  if(S.meas && S.mTimeNs>0){
+    const P=S.mImp/(S.mTimeNs*1e-9)/per;
+    document.getElementById('rPVm').textContent=fmt(P*area*1e21,0);
+    const sec=Math.floor(S.mTimeNs/TS);
+    document.getElementById('measInfo').innerHTML='זמן מדידה: <span class="ltr">'+sec+' s</span> · פגיעות בדפנות: <span class="ltr">'+S.mHits+'</span>';
+  }
+}
+function startMeas(){ S.meas=true; S.mImp=0; S.mTimeNs=0; S.mHits=0; S.mStart=performance.now();
+  const b=document.getElementById('measBtn'); b.setAttribute('aria-pressed','true'); b.textContent='■ עצרו את המדידה';
+  document.getElementById('rPVm').textContent='…'; }
+function stopMeas(clear){ const b=document.getElementById('measBtn'); if(!b) return;
+  const was=S.meas; S.meas=false; b.setAttribute('aria-pressed','false'); b.textContent='▶ התחילו מדידה';
+  if(clear && was){ document.getElementById('rPVm').textContent='—';
+    document.getElementById('measInfo').textContent='המדידה אופסה כי שיניתם משהו. התחילו מחדש.'; } }
+
+/* ============================================================
+   Main loop
+   ============================================================ */
+let lastT=performance.now();
+function frame(now){
+  let dt=(now-lastT)/1000; lastT=now; dt=Math.min(dt,0.05);
+  if(!S.paused && !document.hidden){
+    const dtNs=dt*TS; const r=advance(dtNs);
+    // live window ~1.5 s of screen time
+    const k=Math.exp(-dt/1.5); S.liveImp=S.liveImp*k+r.imp; S.liveTime=S.liveTime*k+dtNs;
+    if(S.meas){ S.mImp+=r.imp; S.mTimeNs+=dtNs; S.mHits+=r.hits; }
+    // speed histogram: decaying accumulator
+    for(let i=0;i<NB;i++) S.hist[i]*=0.985;
+    S.histTot=S.histTot*0.985+S.parts.length;
+    for(const p of S.parts){ const b=Math.floor(Math.hypot(p.vx,p.vy)/(VMAX/NB)); if(b<NB) S.hist[b]+=1; }
+  }
+  try{ if(S.tab==='tLab'){ drawBox(); updateReadouts(now); } else drawHist(); }
+  catch(e){ console.error('tab '+S.tab+':',e); }
+  requestAnimationFrame(frame);
+}
+
+/* ============================================================
+   Wiring
+   ============================================================ */
+function buildGasButtons(id){
+  const box=document.getElementById(id);
+  for(const g of GASES){
+    const b=document.createElement('button'); b.type='button'; b.className='gas'; b.dataset.gas=g.id;
+    b.innerHTML='<b>'+g.he+'</b><span>'+g.f+' · '+g.M.toFixed(1)+' g/mol</span>';
+    b.addEventListener('click',()=>{ setGas(g); syncUI(); });
+    box.appendChild(b);
+  }
+}
+function syncUI(){
+  document.querySelectorAll('.gas').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.gas===S.gas.id)));
+  for(const [s,v] of [['sT','vT'],['sT2','vT2']]){ document.getElementById(s).value=S.T; document.getElementById(v).textContent=S.T+' K'; }
+  document.getElementById('sN').value=S.N; document.getElementById('vN').textContent=S.N;
+  document.getElementById('sV').value=S.W; document.getElementById('vV').textContent=Math.round(S.W*H_NM)+' nm²';
+}
+buildGasButtons('gasesA'); buildGasButtons('gasesB');
+for(const id of ['sT','sT2']) document.getElementById(id).addEventListener('input',e=>{ setT(+e.target.value); syncUI(); });
+document.getElementById('sN').addEventListener('input',e=>{ setN(+e.target.value); syncUI(); });
+document.getElementById('sV').addEventListener('input',e=>{ setW(+e.target.value); syncUI(); });
+document.getElementById('reshuffle').addEventListener('click',()=>{ reshuffle(); });
+document.getElementById('measBtn').addEventListener('click',()=>{ S.meas? stopMeas(false) : startMeas(); });
+document.getElementById('pauseBtn').addEventListener('click',e=>{ S.paused=!S.paused;
+  e.currentTarget.setAttribute('aria-pressed',String(S.paused)); e.currentTarget.textContent=S.paused?'המשך ▶':'השהיה'; });
+document.getElementById('themeBtn').addEventListener('click',e=>{ const d=document.documentElement.dataset.theme==='dark';
+  document.documentElement.dataset.theme=d?'light':'dark'; e.currentTarget.textContent=d?'מצב לילה':'מצב יום'; });
+document.getElementById('curveBtn').addEventListener('click',e=>{ S.showCurve=!S.showCurve;
+  e.currentTarget.setAttribute('aria-pressed',String(S.showCurve));
+  e.currentTarget.textContent=S.showCurve?'עקומה חלקה — מוצגת ✓':'עקומה חלקה — מוסתרת';
+  document.getElementById('lgCurve').style.display=S.showCurve?'':'none'; });
+document.getElementById('freezeBtn').addEventListener('click',()=>{
+  S.ghost={frac:Array.from(S.hist,x=>100*x/(S.histTot||1)),bw:VMAX/NB};
+  document.getElementById('ghostName').textContent='הוקפא: '+S.gas.he+', ';
+  const t=document.createElement('span'); t.style.direction='ltr'; t.style.unicodeBidi='isolate'; t.textContent=S.T+' K';
+  document.getElementById('ghostName').appendChild(t);
+  document.getElementById('lgGhost').style.display=''; });
+document.getElementById('rangeChips').addEventListener('click',e=>{ const b=e.target.closest('.chip'); if(!b) return;
+  VMAX=+b.dataset.v; S.hist.fill(0); S.histTot=0;
+  document.querySelectorAll('#rangeChips .chip').forEach(x=>x.setAttribute('aria-pressed',String(x===b))); });
+document.getElementById('clearGhost').addEventListener('click',()=>{ S.ghost=null; document.getElementById('lgGhost').style.display='none'; });
+document.getElementById('tabs').addEventListener('click',e=>{
+  const b=e.target.closest('button[data-tab]'); if(!b) return; S.tab=b.dataset.tab;
+  document.querySelectorAll('nav.tabs button').forEach(x=>x.setAttribute('aria-selected',String(x===b)));
+  document.querySelectorAll('.panel').forEach(p=>p.classList.toggle('active',p.id===S.tab)); });
+
+// drag the right wall (mouse + touch)
+(function(){
+  const c=document.getElementById('cBox'); let drag=false;
+  function wx(ev){ const r=c.getBoundingClientRect(); const t=ev.touches?ev.touches[0]:ev; return t.clientX-r.left; }
+  function near(ev){ if(!boxGeom) return false; return Math.abs(wx(ev)-(boxGeom.x0+S.W*boxGeom.sc))<22; }
+  function move(ev){ if(!drag||!boxGeom) return; ev.preventDefault();
+    const W=Math.round(Math.max(40,Math.min(130,(wx(ev)-boxGeom.x0)/boxGeom.sc)));
+    if(W!==S.W){ setW(W); syncUI(); } }
+  c.addEventListener('mousedown',e=>{ if(near(e)) drag=true; });
+  c.addEventListener('touchstart',e=>{ if(near(e)){ drag=true; e.preventDefault(); } },{passive:false});
+  window.addEventListener('mousemove',move); window.addEventListener('touchmove',move,{passive:false});
+  window.addEventListener('mouseup',()=>drag=false); window.addEventListener('touchend',()=>drag=false);
+})();
+document.addEventListener('visibilitychange',()=>{ lastT=performance.now(); });
+
+reshuffle(); syncUI(); requestAnimationFrame(frame);
+</script>
+</body>
+</html>
