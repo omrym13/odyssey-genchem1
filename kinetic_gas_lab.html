@@ -489,7 +489,21 @@ document.getElementById('tabs').addEventListener('click',e=>{
 })();
 document.addEventListener('visibilitychange',()=>{ lastT=performance.now(); });
 
-reshuffle(); syncUI(); requestAnimationFrame(frame);
+/* deep links from the slide deck: #A or #B (also א/ב), then &gas=Xe&T=300&N=200
+   e.g. kinetic_gas_lab.html#A&gas=H2&T=300 */
+function applyHash(){
+  const h=decodeURIComponent((location.hash||'').slice(1)); if(!h) return;
+  const kv={}; h.split('&').forEach(p=>{ const i=p.indexOf('='); if(i<0) kv.tab=p; else kv[p.slice(0,i)]=p.slice(i+1); });
+  const tab={A:'tLab','א':'tLab',lab:'tLab',B:'tDist','ב':'tDist',dist:'tDist'}[kv.tab];
+  if(tab){ const b=document.querySelector('nav.tabs button[data-tab="'+tab+'"]'); if(b) b.click(); }
+  if(kv.gas){ const g=GASES.find(x=>x.id===kv.gas); if(g) setGas(g); }
+  if(kv.N && +kv.N>=20 && +kv.N<=200) setN(Math.round(+kv.N/10)*10);
+  if(kv.T && +kv.T>=100 && +kv.T<=900) setT(Math.round(+kv.T/10)*10);
+  syncUI();
+}
+addEventListener('hashchange',applyHash);
+
+reshuffle(); syncUI(); applyHash(); requestAnimationFrame(frame);
 </script>
 </body>
 </html>
