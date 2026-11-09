@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>שימור אנרגיה בשלוש דרכים</title>
+<style>
+:root{
+  --navy:#0F2E4C; --terra:#B8482C; --parch:#F4EFE6; --gold:#C9A227; --green:#2E6F40;
+  --ink:#1a1a1a; --panel:#ffffff; --muted:#5d6b7a; --line:#c9d4e3; --board:#fbfaf6; --lost:#8b8f96;
+}
+[data-theme="dark"]{
+  --parch:#12181f; --panel:#1b232d; --ink:#eaf0f6; --muted:#9fb0c2; --line:#2c3b4d; --board:#161e27;
+  --navy:#9cc3ea; --terra:#e07a5c; --lost:#6c737c;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;-webkit-text-size-adjust:100%}
+body{font-family:"Heebo","Assistant","Arial Hebrew",system-ui,sans-serif;background:var(--parch);color:var(--ink);font-size:15px;line-height:1.55}
+header{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 18px;background:#0F2E4C;color:#fff}
+header h1{margin:0;font-size:19px;font-weight:800}
+.themebtn{background:transparent;color:#fff;border:1.5px solid rgba(255,255,255,.55);border-radius:9px;padding:8px 12px;font:inherit;cursor:pointer;min-height:40px}
+nav.tabs{display:flex;flex-wrap:wrap;gap:6px;padding:10px 14px;background:var(--panel);border-bottom:1px solid var(--line)}
+nav.tabs button{font:inherit;font-weight:700;cursor:pointer;padding:9px 14px;min-height:44px;background:transparent;color:var(--muted);border:none;border-bottom:3px solid transparent;border-radius:6px 6px 0 0}
+nav.tabs button[aria-selected="true"]{color:var(--navy);border-bottom-color:var(--gold)}
+.panel{display:none;padding:14px 18px 28px}
+.panel.active{display:block}
+.ask{background:var(--panel);border-right:5px solid var(--terra);border-radius:8px;padding:9px 14px;margin:0 0 12px}
+.ask b{color:var(--terra)}
+.layout{display:flex;gap:16px;align-items:flex-start}
+.controls{flex:0 0 270px;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px}
+.plot{flex:1 1 auto;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:10px;min-width:0}
+canvas{width:100%;height:auto;aspect-ratio:16/9;display:block;touch-action:none}
+@media (max-width:760px){.layout{flex-direction:column}.controls{flex:1 1 auto;width:100%}canvas{aspect-ratio:4/5}}
+label.ctl{display:block;margin:0 0 12px;font-weight:700}
+label.ctl .val{float:left;font-weight:800;color:var(--terra);direction:ltr;unicode-bidi:isolate}
+input[type=range]{width:100%;margin-top:6px}
+input[type=range]:disabled{opacity:.35}
+.btnrow{display:flex;gap:8px;margin:0 0 10px}
+button.act,button.mode{font:inherit;font-weight:800;cursor:pointer;min-height:44px;border-radius:10px;padding:8px 10px;border:2px solid var(--navy);background:transparent;color:var(--navy);flex:1}
+button.act.primary{background:var(--terra);border-color:var(--terra);color:#fff}
+button.mode{width:100%;margin-bottom:10px}
+button.mode[aria-pressed="true"]{background:#0F2E4C;color:#fff;border-color:#0F2E4C}
+[data-theme="dark"] button.mode[aria-pressed="true"]{background:var(--gold);color:#12181f;border-color:var(--gold)}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 12px}
+.chips button{font:inherit;font-weight:700;cursor:pointer;min-height:36px;padding:4px 10px;border-radius:8px;border:1.5px solid var(--line);background:transparent;color:var(--ink);direction:ltr}
+.chips button[aria-pressed="true"]{border-color:var(--terra);color:var(--terra)}
+.note{font-size:12.5px;color:var(--muted);margin:-4px 0 10px}
+/* big numbers */
+.big{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:14px}
+@media (max-width:760px){.big{grid-template-columns:1fr}}
+.grp{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:10px 14px}
+.grp h3{margin:0 0 6px;font-size:16px}
+.grp.top{border-top:6px solid var(--navy)} .grp.top h3{color:var(--navy)}
+.grp.bot{border-top:6px solid var(--terra)} .grp.bot h3{color:var(--terra)}
+.cards{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.card .k{font-size:13px;color:var(--muted);font-weight:700}
+.card .n{font-size:34px;font-weight:800;direction:ltr;unicode-bidi:isolate;display:block;text-align:right;line-height:1.15}
+.grp.top .n{color:var(--navy)} .grp.bot .n{color:var(--terra)}
+.card .f{font-size:12.5px;color:var(--muted);direction:ltr;unicode-bidi:isolate;display:block;text-align:right}
+.verdict{margin-top:12px;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:10px 14px;font-size:17px;font-weight:700;display:flex;flex-wrap:wrap;gap:6px 22px;align-items:center}
+.verdict .eq{direction:ltr;unicode-bidi:isolate;font-size:20px}
+.verdict .ok{color:var(--green)} .verdict .lossc{color:var(--lost)}
+.ebar{margin-top:12px;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:10px 14px}
+.ebar .ttl{font-weight:800;margin-bottom:6px}
+.ebar .track{display:flex;height:26px;border-radius:7px;overflow:hidden;border:1px solid var(--line);direction:rtl}
+.ebar .u{background:var(--navy)} .ebar .kk{background:var(--terra)} .ebar .q{background:var(--lost)}
+.ebar .leg{display:flex;flex-wrap:wrap;gap:4px 18px;font-size:13.5px;margin-top:6px}
+.ebar .leg i{display:inline-block;width:14px;height:14px;border-radius:3px;vertical-align:-2px;margin-left:5px}
+.ebar .leg b{direction:ltr;unicode-bidi:isolate}
+.log{margin-top:8px;font-size:13.5px;color:var(--muted)}
+.log b{direction:ltr;unicode-bidi:isolate;color:var(--navy)}
+.banner{background:var(--panel);border-right:5px solid var(--gold);border-radius:8px;padding:10px 14px;margin-top:14px}
+.ltr{direction:ltr;unicode-bidi:isolate;display:inline-block}
+table.ff{border-collapse:collapse;margin-top:10px;width:100%;font-size:14px}
+table.ff th,table.ff td{border:1px solid var(--line);padding:4px 8px;text-align:center}
+table.ff th{background:var(--navy);color:#fff}
+[data-theme="dark"] table.ff th{color:#12181f}
+table.ff td{direction:ltr}
+table.ff tr.cur td{background:rgba(201,162,39,.18);font-weight:800}
+
+/* ---------- one-screen layout for laptop / projector ---------- */
+.side{display:flex;flex-direction:column;gap:10px;margin-top:14px}
+.side .big,.side .verdict,.side .ebar,.side .banner{margin-top:0}
+details.banner summary{cursor:pointer;font-weight:800;color:var(--navy)}
+@media (min-width:901px){
+  html,body{height:100%;overflow:hidden}
+  body{display:flex;flex-direction:column}
+  header{padding:7px 16px} header h1{font-size:17px} .themebtn{min-height:34px;padding:4px 10px}
+  nav.tabs{padding:4px 12px} nav.tabs button{min-height:38px;padding:5px 12px}
+  .panel.active{display:grid;grid-template-columns:250px minmax(0,1fr) minmax(330px,27vw);grid-template-rows:auto minmax(0,1fr);gap:10px;flex:1 1 auto;min-height:0;padding:10px 12px}
+  .ask{grid-column:1/-1;grid-row:1;margin:0;padding:6px 12px}
+  .controls{grid-column:1;grid-row:2;overflow:auto;padding:10px 12px}
+  .plot{grid-column:2;grid-row:2;display:flex;min-height:0;padding:6px}
+  .plot canvas{aspect-ratio:auto;width:100%;height:100%;flex:1 1 auto;min-height:0}
+  .side{grid-column:3;grid-row:2;margin:0;overflow:auto;min-height:0;gap:8px}
+  label.ctl{margin-bottom:8px} input[type=range]{margin-top:3px}
+  button.mode{min-height:38px;margin-bottom:7px;padding:5px 8px} button.act{min-height:40px}
+  .note{font-size:12px;margin:-2px 0 7px} .chips{margin-bottom:8px} .chips button{min-height:32px;padding:2px 8px}
+  .big{grid-template-columns:1fr;gap:8px;margin:0}
+  .grp{padding:7px 12px} .grp h3{font-size:15px;margin:0 0 2px}
+  .card .n{font-size:clamp(22px,2.1vw,32px)} .card .k{font-size:12.5px} .card .f{font-size:12px}
+  .verdict{font-size:14.5px;padding:7px 12px;gap:4px 14px} .verdict .eq{font-size:16px}
+  .ebar{padding:7px 12px} .ebar .track{height:20px} .ebar .leg{font-size:12.5px} .log{font-size:12.5px;margin-top:4px}
+  .banner{padding:7px 12px;font-size:13.5px}
+  table.ff{font-size:12.5px;margin-top:6px} table.ff th,table.ff td{padding:2px 6px}
+}
+</style>
+</head>
+<body>
+<header>
+  <h1>שימור אנרגיה בשלוש דרכים</h1>
+  <button class="themebtn" id="themebtn" type="button">מצב לילה</button>
+</header>
+<nav class="tabs" role="tablist">
+  <button role="tab" aria-selected="true" data-tab="t1">1. המטוטלת</button>
+  <button role="tab" aria-selected="false" data-tab="t2">2. נפילה חופשית</button>
+  <button role="tab" aria-selected="false" data-tab="t3">3. נפילה מול מגלשה</button>
+</nav>
+
+<!-- ===================== TAB 1: PENDULUM ===================== -->
+<section class="panel active" id="t1" role="tabpanel">
+  <div class="ask"><b>לפני שמשחררים:</b> לאיזה גובה תעלה המשקולת בצד השני? ומה ישתנה אם נכפיל את המסה?</div>
+  <div class="layout">
+    <div class="controls">
+      <label class="ctl">זווית השחרור <span class="val" id="v1-a">40°</span><input type="range" id="s1-a" min="10" max="80" value="40" step="1"></label>
+      <label class="ctl">אורך החוט <span class="val" id="v1-L">1.00 m</span><input type="range" id="s1-L" min="30" max="200" value="100" step="5"></label>
+      <label class="ctl">המסה <span class="val" id="v1-m">1.00 kg</span><input type="range" id="s1-m" min="0.1" max="5" value="1" step="0.1"></label>
+      <button class="mode" id="m1-air" type="button" aria-pressed="false">התנגדות אוויר: כבויה ✕</button>
+      <label class="ctl">עוצמת ההתנגדות <span class="val" id="v1-c">בינונית</span><input type="range" id="s1-c" min="1" max="3" value="2" step="1" disabled></label>
+      <p class="note">ההתנגדות כאן מוגזמת בכוונה, כדי שנראה אותה בכמה תנודות. במטוטלת אמיתית של קילוגרם היא חלשה בהרבה.</p>
+      <button class="mode" id="m1-slow" type="button" aria-pressed="false">הילוך איטי: כבוי ✕</button>
+      <div class="btnrow"><button class="act primary" id="b1-go" type="button">שחרור</button><button class="act" id="b1-reset" type="button">מההתחלה</button></div>
+    </div>
+    <div class="plot"><canvas id="c1"></canvas></div>
+  </div>
+  <div class="big" id="big1"></div>
+  <div class="verdict" id="ver1"></div>
+  <div class="ebar" id="eb1"></div>
+  <div class="banner">בלי אוויר, המשקולת חוזרת לאותו גובה בכל תנודה, בלי סוף. בתחתית כל האנרגיה קינטית, בשיא כל האנרגיה פוטנציאלית, והמספרים שווים. המהירות בתחתית לא תלויה במסה: מכפילים את המסה, והאנרגיה מוכפלת, אבל המהירות נשארת. עם אוויר, הגובה יורד מתנודה לתנודה, וההפרש עובר לאוויר כחום.</div>
+</section>
+
+<!-- ===================== TAB 2: FREE FALL ===================== -->
+<section class="panel" id="t2" role="tabpanel">
+  <div class="ask"><b>לפני שמשחררים:</b> מגובה 10 מטר, באיזו מהירות יפגע הכדור ברצפה? ואם הכדור קופץ חזרה בלי לאבד אנרגיה, לאיזה גובה יחזור?</div>
+  <div class="layout">
+    <div class="controls">
+      <div style="font-weight:700;margin-bottom:4px">גובה ההתחלה</div>
+      <div class="chips" id="ch2"></div>
+      <label class="ctl">או בדיוק <span class="val" id="v2-h">10.0 m</span><input type="range" id="s2-h" min="1" max="100" value="10" step="1"></label>
+      <label class="ctl">המסה <span class="val" id="v2-m">1.00 kg</span><input type="range" id="s2-m" min="0.1" max="5" value="1" step="0.1"></label>
+      <button class="mode" id="m2-bounce" type="button" aria-pressed="true">קופץ חזרה בלי איבוד: פועל ✓</button>
+      <button class="mode" id="m2-air" type="button" aria-pressed="false">התנגדות אוויר: כבויה ✕</button>
+      <label class="ctl">עוצמת ההתנגדות <span class="val" id="v2-c">בינונית</span><input type="range" id="s2-c" min="1" max="3" value="2" step="1" disabled></label>
+      <p class="note">כל הכדורים באותו גודל. עוצמה חלשה היא בערך כדור בקוטר 10 ס״מ באוויר אמיתי; בינונית וחזקה מוגזמות. עם אוויר, כדור כבד מאבד חלק קטן יותר מהאנרגיה שלו.</p>
+      <button class="mode" id="m2-slow" type="button" aria-pressed="false">הילוך איטי: כבוי ✕</button>
+      <div class="btnrow"><button class="act primary" id="b2-go" type="button">שחרור</button><button class="act" id="b2-reset" type="button">מההתחלה</button></div>
+    </div>
+    <div class="plot"><canvas id="c2"></canvas></div>
+  </div>
+  <div class="big" id="big2"></div>
+  <div class="verdict" id="ver2"></div>
+  <div class="ebar" id="eb2"></div>
+  <div class="banner">
+    הנקודות על המסלול הן צילומים כל עשירית שנייה. בהתחלה הן צפופות, למטה הן מתרחקות: הכדור מאיץ. הגובה הופך למהירות, והמהירות, כשהכדור קופץ, הופכת בחזרה לגובה.
+    <table class="ff" id="ff2"><tr><th>גובה</th><th>מהירות בתחתית</th><th>בקמ״ש</th></tr></table>
+  </div>
+</section>
+
+<!-- ===================== TAB 3: FALL VS SLIDE ===================== -->
+<section class="panel" id="t3" role="tabpanel">
+  <div class="ask"><b>לפני שמשחררים:</b> שני כדורים זהים, מאותו גובה. אחד נופל ישר, השני גולש במגלשה בלי חיכוך. מי יגיע למטה <b>מהר יותר</b>, זאת אומרת במהירות גבוהה יותר? ומי יגיע <b>קודם</b>?</div>
+  <div class="layout">
+    <div class="controls">
+      <label class="ctl">הגובה <span class="val" id="v3-h">3.0 m</span><input type="range" id="s3-h" min="1" max="6" value="3" step="0.5"></label>
+      <label class="ctl">המסה של כל כדור <span class="val" id="v3-m">1.00 kg</span><input type="range" id="s3-m" min="0.1" max="5" value="1" step="0.1"></label>
+      <div style="font-weight:700;margin-bottom:4px">צורת המגלשה</div>
+      <div class="chips" id="ch3"><button type="button" data-shape="line" aria-pressed="false">מדרון ישר</button><button type="button" data-shape="curve" aria-pressed="true">מגלשה מתעקלת</button></div>
+      <button class="mode" id="m3-fr" type="button" aria-pressed="false">חיכוך במגלשה: כבוי ✕</button>
+      <label class="ctl">מקדם החיכוך <span class="val" id="v3-mu">0.10</span><input type="range" id="s3-mu" min="0.05" max="0.30" value="0.10" step="0.05" disabled></label>
+      <button class="mode" id="m3-slow" type="button" aria-pressed="false">הילוך איטי: כבוי ✕</button>
+      <div class="btnrow"><button class="act primary" id="b3-go" type="button">שחרור</button><button class="act" id="b3-reset" type="button">מההתחלה</button></div>
+    </div>
+    <div class="plot"><canvas id="c3"></canvas></div>
+  </div>
+  <div class="big" id="big3"></div>
+  <div class="verdict" id="ver3"></div>
+  <div class="banner">אותה מהירות בתחתית, זמן שונה. המהירות תלויה רק בגובה שירדנו, לא בדרך: כוח הכובד עושה אותה עבודה, ‎mgh‎, בכל מסלול. הכוח של המגלשה ניצב לתנועה ולא עושה עבודה. כשמוסיפים חיכוך, יש כוח נוסף שעושה עבודה שלילית, והכדור במגלשה מגיע לאט יותר. ההפרש הוא האנרגיה שהחיכוך הפך לחום.</div>
+</section>
+
+<script>
+"use strict";
+const G=9.8, TAU=Math.PI*2;
+const CLEV={1:{n:'חלשה'},2:{n:'בינונית'},3:{n:'חזקה'}};
+/* --------- canvas helpers (dpr in both axes, bidi-safe text) --------- */
+function setupCanvas(cv){
+  const dpr=window.devicePixelRatio||1;
+  const w=cv.clientWidth||(cv.parentElement&&cv.parentElement.clientWidth)||640;
+  const h=cv.clientHeight||Math.round(w*0.5625);
+  cv.width=Math.round(w*dpr); cv.height=Math.round(h*dpr);
+  const ctx=cv.getContext('2d'); ctx.setTransform(dpr,0,0,dpr,0,0); ctx.clearRect(0,0,w,h);
+  return {ctx,w,h};
+}
+function heText(ctx,t,x,y,a){ctx.save();ctx.direction='rtl';ctx.textAlign=a||'right';ctx.fillText(t,x,y);ctx.restore();}
+function ltrText(ctx,t,x,y,a){ctx.save();ctx.direction='ltr';ctx.textAlign=a||'left';ctx.fillText(t,x,y);ctx.restore();}
+function css(n){return getComputedStyle(document.documentElement).getPropertyValue(n).trim();}
+function R(r){return Math.max(1,r);}
+function fx(v,d){ if(!isFinite(v)) return '—'; return v.toFixed(d); }
+function fJ(E){ if(!isFinite(E)) return '—'; const a=Math.abs(E); return (a>=100? E.toFixed(0): a>=10? E.toFixed(1): E.toFixed(2))+' J'; }
+function setMode(btn,on,tOn,tOff){btn.setAttribute('aria-pressed',on?'true':'false');btn.textContent=on?tOn:tOff;}
+/* drag coefficient c (kg/m): F = c v^2. Pendulum and fall use different exaggerations. */
+const C_PEND={1:0.01,2:0.03,3:0.08}, C_FALL={1:0.002,2:0.006,3:0.02};
+
+/* ---------- big-number panel builder ---------- */
+function buildBig(id,topTitle,botTitle,hUnit){
+  document.getElementById('big'+id).innerHTML=
+   '<div class="grp top"><h3>'+topTitle+'</h3><div class="cards">'+
+     '<div class="card"><span class="k">הגובה המרבי</span><span class="n" id="n'+id+'-h">—</span><span class="f" id="f'+id+'-h"></span></div>'+
+     '<div class="card"><span class="k">האנרגיה הפוטנציאלית</span><span class="n" id="n'+id+'-U">—</span><span class="f">U = m·g·h</span></div>'+
+   '</div></div>'+
+   '<div class="grp bot"><h3>'+botTitle+'</h3><div class="cards">'+
+     '<div class="card"><span class="k">המהירות המרבית</span><span class="n" id="n'+id+'-v">—</span><span class="f" id="f'+id+'-v"></span></div>'+
+     '<div class="card"><span class="k">האנרגיה הקינטית</span><span class="n" id="n'+id+'-K">—</span><span class="f">K = ½·m·v²</span></div>'+
+   '</div></div>';
+  const eb=document.getElementById('eb'+id); if(!eb) return;
+  eb.innerHTML=
+   '<div class="ttl">לאן הולכת האנרגיה, ברגע הזה</div>'+
+   '<div class="track"><div class="u" id="b'+id+'u"></div><div class="kk" id="b'+id+'k"></div><div class="q" id="b'+id+'q"></div></div>'+
+   '<div class="leg"><span><i style="background:var(--navy)"></i>פוטנציאלית <b id="l'+id+'u">—</b></span>'+
+   '<span><i style="background:var(--terra)"></i>קינטית <b id="l'+id+'k">—</b></span>'+
+   '<span><i style="background:var(--lost)"></i>עברה לאוויר כחום <b id="l'+id+'q">—</b></span>'+
+   '<span>סך הכול <b id="l'+id+'t">—</b></span></div><div class="log" id="log'+id+'"></div>';
+}
+function setBar(id,U,K,Q,E0){
+  const t=Math.max(E0,1e-12);
+  document.getElementById('b'+id+'u').style.width=(100*Math.max(0,U)/t).toFixed(2)+'%';
+  document.getElementById('b'+id+'k').style.width=(100*Math.max(0,K)/t).toFixed(2)+'%';
+  document.getElementById('b'+id+'q').style.width=(100*Math.max(0,Q)/t).toFixed(2)+'%';
+  document.getElementById('l'+id+'u').textContent=fJ(U);
+  document.getElementById('l'+id+'k').textContent=fJ(K);
+  document.getElementById('l'+id+'q').textContent=fJ(Q);
+  document.getElementById('l'+id+'t').textContent=fJ(U+K+Q);
+}
+function verdict(id,Utop,Kbot,air,extra){
+  const el=document.getElementById('ver'+id);
+  if(!isFinite(Kbot)){ el.innerHTML='<span>משחררים, ובודקים: האנרגיה הקינטית בתחתית שווה לאנרגיה הפוטנציאלית בשיא?</span>'; return; }
+  const d=Utop-Kbot;
+  let s='<span class="eq">U<sub>top</sub> = '+fJ(Utop)+'</span><span class="eq">K<sub>bottom</sub> = '+fJ(Kbot)+'</span>';
+  if(!air && Math.abs(d)<=Math.max(0.005,0.002*Utop)) s+='<span class="ok">שווים: האנרגיה נשמרת ✓</span>';
+  else s+='<span class="lossc">ההפרש <span class="ltr">'+fJ(d)+'</span> עבר לאוויר</span>';
+  if(extra) s+=extra;
+  el.innerHTML=s;
+}
+
+/* ===================================================== */
+/* ============== TAB 1: PENDULUM ====================== */
+/* ===================================================== */
+const P1={a:40,L:1,m:1,air:false,cl:2,slow:false,running:false};
+function p1reset(){
+  Object.assign(P1,{th:-P1.a*Math.PI/180,om:0,t:0,running:false,Q:0,peaks:[],lastV:NaN,lastK:NaN,lastH:NaN,lastU:NaN,trail:[]});
+  P1.h0=P1.L*(1-Math.cos(P1.th)); P1.E0=P1.m*G*P1.h0; P1.lastH=P1.h0; P1.lastU=P1.E0;
+}
+function p1acc(th,om){ const c=P1.air?C_PEND[P1.cl]:0; return -(G/P1.L)*Math.sin(th) - (c/P1.m)*P1.L*om*Math.abs(om); }
+function p1step(dt){
+  const th=P1.th, om=P1.om;
+  const k1t=om, k1o=p1acc(th,om);
+  const k2t=om+0.5*dt*k1o, k2o=p1acc(th+0.5*dt*k1t,om+0.5*dt*k1o);
+  const k3t=om+0.5*dt*k2o, k3o=p1acc(th+0.5*dt*k2t,om+0.5*dt*k2o);
+  const k4t=om+dt*k3o, k4o=p1acc(th+dt*k3t,om+dt*k3o);
+  const nth=th+dt*(k1t+2*k2t+2*k3t+k4t)/6, nom=om+dt*(k1o+2*k2o+2*k3o+k4o)/6;
+  // bottom crossing
+  if((th<0&&nth>=0)||(th>0&&nth<=0)){ const f=th/(th-nth); const omc=om+f*(nom-om); const v=Math.abs(omc)*P1.L; P1.lastV=v; P1.lastK=0.5*P1.m*v*v; }
+  // turning point
+  if(om!==0 && Math.sign(nom)!==Math.sign(om) && P1.t>0.05){ const h=P1.L*(1-Math.cos(nth)); P1.lastH=h; P1.lastU=P1.m*G*h; P1.peaks.push(h); if(P1.peaks.length>8) P1.peaks.shift(); }
+  P1.th=nth; P1.om=nom; P1.t+=dt;
+  const E=0.5*P1.m*Math.pow(P1.L*P1.om,2)+P1.m*G*P1.L*(1-Math.cos(P1.th)); P1.Q=Math.max(0,P1.E0-E);
+}
+function p1adv(T){ const n=Math.max(1,Math.ceil(T/0.0005)); for(let i=0;i<n;i++) p1step(T/n); }
+function p1draw(){
+  const cv=document.getElementById('c1'); const {ctx,w,h}=setupCanvas(cv);
+  const navy=css('--navy'),terra=css('--terra'),gold=css('--gold'),ink=css('--ink'),muted=css('--muted'),green=css('--green');
+  ctx.fillStyle=css('--board'); ctx.fillRect(0,0,w,h);
+  const L=P1.L, S=Math.max(10,Math.min((w-80)/(2.15*L),(h-60)/(1.12*L)));
+  const ox=w/2, oy=Math.max(26,(h-1.12*L*S)/2+20);
+  const X=x=>ox+x*S, Y=y=>oy-y*S;               // pivot at (0,0), y up
+  const yb=-L, y0=yb+P1.h0;
+  // ceiling
+  ctx.fillStyle=muted; ctx.fillRect(X(-0.18*L),oy-8,0.36*L*S,6);
+  // bottom line + release line
+  ctx.strokeStyle=css('--line'); ctx.lineWidth=1; ctx.beginPath(); ctx.moveTo(X(-1.05*L),Y(yb)); ctx.lineTo(X(1.05*L),Y(yb)); ctx.stroke();
+  ctx.setLineDash([7,5]); ctx.strokeStyle=gold; ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(X(-1.05*L),Y(y0)); ctx.lineTo(X(1.05*L),Y(y0)); ctx.stroke(); ctx.setLineDash([]);
+  ctx.font='700 13px Heebo, sans-serif'; ctx.fillStyle=gold; heText(ctx,'גובה השחרור',X(1.05*L),Y(y0)-6,'right');
+  // last peak line
+  if(P1.peaks.length){ const hp=P1.peaks[P1.peaks.length-1]; ctx.strokeStyle=green; ctx.lineWidth=3; ctx.beginPath(); ctx.moveTo(X(-0.95*L),Y(yb+hp)); ctx.lineTo(X(0.95*L),Y(yb+hp)); ctx.stroke(); }
+  // arc guide
+  ctx.strokeStyle=css('--line'); ctx.lineWidth=1; ctx.setLineDash([3,4]); ctx.beginPath(); const A=P1.a*Math.PI/180; ctx.arc(X(0),Y(0),L*S,Math.PI/2-A,Math.PI/2+A); ctx.stroke(); ctx.setLineDash([]);
+  // trail
+  for(let i=1;i<P1.trail.length;i++){ const a=P1.trail[i-1],b=P1.trail[i]; ctx.strokeStyle=terra; ctx.globalAlpha=0.06+0.5*i/P1.trail.length; ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(X(a[0]),Y(a[1])); ctx.lineTo(X(b[0]),Y(b[1])); ctx.stroke(); }
+  ctx.globalAlpha=1;
+  const bx=L*Math.sin(P1.th), by=-L*Math.cos(P1.th);
+  ctx.strokeStyle=ink; ctx.lineWidth=1.6; ctx.beginPath(); ctx.moveTo(X(0),Y(0)); ctx.lineTo(X(bx),Y(by)); ctx.stroke();
+  ctx.fillStyle=navy; ctx.beginPath(); ctx.arc(X(0),Y(0),R(5),0,TAU); ctx.fill();
+  const br=R((10+7*Math.cbrt(P1.m)));
+  ctx.fillStyle=terra; ctx.beginPath(); ctx.arc(X(bx),Y(by),br,0,TAU); ctx.fill();
+  ctx.fillStyle='#fff'; ctx.font='800 11px Heebo, sans-serif'; ltrText(ctx,P1.m.toFixed(1)+' kg',X(bx),Y(by)+4,'center');
+  // height of bob above bottom: vertical bracket
+  const hb=by-yb;
+  if(hb>0.004){ ctx.strokeStyle=navy; ctx.lineWidth=2; const xx=X(bx)+(bx>=0?-br-10:br+10);
+    ctx.beginPath(); ctx.moveTo(xx,Y(yb)); ctx.lineTo(xx,Y(by)); ctx.stroke();
+    ctx.fillStyle=navy; ctx.font='800 13px Heebo, sans-serif'; ltrText(ctx,'h = '+(hb*100).toFixed(1)+' cm',xx+(bx>=0?-6:6),Y((yb+by)/2)+4,bx>=0?'right':'left'); }
+  // speed label at bob
+  const v=Math.abs(P1.om)*L; ctx.fillStyle=terra; ctx.font='800 13px Heebo, sans-serif';
+  ltrText(ctx,'v = '+v.toFixed(2)+' m/s',X(bx)+(bx<0?br:-br),Y(by)+br+18,bx<0?'right':'left');
+  // scale in cm on the left
+  ctx.strokeStyle=muted; ctx.fillStyle=muted; ctx.lineWidth=1; ctx.font='700 11px Heebo, sans-serif';
+  const xs=X(-1.05*L)-4, top=Math.ceil(P1.h0*100/10)*10, stp=top>100?20:10;
+  ctx.beginPath(); ctx.moveTo(xs,Y(yb)); ctx.lineTo(xs,Y(yb+top/100)); ctx.stroke();
+  for(let c=0;c<=top;c+=stp){ ctx.beginPath(); ctx.moveTo(xs,Y(yb+c/100)); ctx.lineTo(xs-6,Y(yb+c/100)); ctx.stroke(); ltrText(ctx,String(c),xs-9,Y(yb+c/100)+4,'right'); }
+  ltrText(ctx,'cm',xs-9,Y(yb+top/100)-12,'right');
+}
+function p1read(){
+  const hasPeak=P1.peaks.length>0;
+  document.getElementById('n1-h').textContent=(P1.lastH*100).toFixed(1)+' cm';
+  document.getElementById('f1-h').textContent=hasPeak?'השיא האחרון':'גובה השחרור';
+  document.getElementById('n1-U').textContent=fJ(P1.lastU);
+  document.getElementById('n1-v').textContent=isFinite(P1.lastV)?P1.lastV.toFixed(2)+' m/s':'—';
+  document.getElementById('f1-v').textContent=isFinite(P1.lastV)?'√(2gh₀) = '+Math.sqrt(2*G*P1.h0).toFixed(2)+' m/s':'';
+  document.getElementById('n1-K').textContent=isFinite(P1.lastK)?fJ(P1.lastK):'—';
+  const U=P1.m*G*P1.L*(1-Math.cos(P1.th)), K=0.5*P1.m*Math.pow(P1.L*P1.om,2);
+  setBar(1,U,K,P1.Q,P1.E0);
+  verdict(1,hasPeak?P1.lastU:P1.E0,P1.lastK,P1.air);
+  const lg=document.getElementById('log1');
+  lg.innerHTML=P1.peaks.length?'הגבהים שהמשקולת הגיעה אליהם, אחד אחרי השני: <b>'+P1.peaks.map(x=>(x*100).toFixed(1)).join('  ·  ')+'</b> <span class="ltr">cm</span>':'';
+}
+/* ===================================================== */
+/* ============== TAB 2: FREE FALL ===================== */
+/* ===================================================== */
+const P2={H:10,m:1,air:false,cl:2,bounce:true,slow:false};
+function p2reset(){ Object.assign(P2,{y:P2.H,v:0,t:0,running:false,Q:0,lastV:NaN,lastK:NaN,lastH:P2.H,lastU:P2.m*G*P2.H,E0:P2.m*G*P2.H,strobe:[[P2.H]],tS:0,peaks:[],tfall:NaN,tStart:0,done:false}); }
+function p2acc(v){ const c=P2.air?C_FALL[P2.cl]:0; return -G - (c/P2.m)*v*Math.abs(v); }
+function p2step(dt){
+  if(P2.done) return;
+  const y=P2.y,v=P2.v;
+  const k1y=v,k1v=p2acc(v), k2y=v+0.5*dt*k1v,k2v=p2acc(v+0.5*dt*k1v), k3y=v+0.5*dt*k2v,k3v=p2acc(v+0.5*dt*k2v), k4y=v+dt*k3v,k4v=p2acc(v+dt*k3v);
+  let ny=y+dt*(k1y+2*k2y+2*k3y+k4y)/6, nv=v+dt*(k1v+2*k2v+2*k3v+k4v)/6;
+  if(ny<=0){ // hit the floor: interpolate the impact speed
+    const f=y/(y-ny); const vi=v+f*(nv-v); P2.lastV=Math.abs(vi); P2.lastK=0.5*P2.m*vi*vi; P2.tfall=P2.t+f*dt-P2.tStart;
+    if(P2.bounce){ ny=0; nv=Math.abs(vi); P2.strobe=[[0]]; P2.tS=0; } else { ny=0; nv=0; P2.done=true; P2.running=false; }
+  }
+  if(v>0 && nv<=0 && P2.t>0.01){ P2.lastH=ny; P2.lastU=P2.m*G*ny; P2.peaks.push(ny); if(P2.peaks.length>8) P2.peaks.shift(); P2.strobe=[[ny]]; P2.tS=0; P2.tStart=P2.t; }
+  P2.y=ny; P2.v=nv; P2.t+=dt; P2.tS+=dt;
+  if(P2.tS>=0.1){ P2.tS-=0.1; P2.strobe.push([P2.y]); if(P2.strobe.length>80) P2.strobe.shift(); }
+  const E=0.5*P2.m*P2.v*P2.v+P2.m*G*P2.y; P2.Q=Math.max(0,P2.E0-E);
+}
+function p2adv(T){ const n=Math.max(1,Math.ceil(T/0.0005)); for(let i=0;i<n;i++) p2step(T/n); }
+function p2draw(){
+  const cv=document.getElementById('c2'); const {ctx,w,h}=setupCanvas(cv);
+  const navy=css('--navy'),terra=css('--terra'),gold=css('--gold'),muted=css('--muted'),ink=css('--ink');
+  ctx.fillStyle=css('--board'); ctx.fillRect(0,0,w,h);
+  const H=P2.H, top=26, bot=h-30, S=(bot-top)/(H*1.05);
+  const Y=y=>bot-y*S, cx=w*0.45;
+  // ground
+  ctx.fillStyle=muted; ctx.fillRect(0,bot,w,4);
+  // tower / scale on the right side
+  const xs=w-46; ctx.strokeStyle=muted; ctx.fillStyle=muted; ctx.lineWidth=1; ctx.font='700 11px Heebo, sans-serif';
+  ctx.beginPath(); ctx.moveTo(xs,Y(0)); ctx.lineTo(xs,Y(H)); ctx.stroke();
+  const stp=H<=2?0.5:H<=10?1:H<=25?5:H<=50?10:20;
+  for(let c=0;c<=H+1e-9;c+=stp){ ctx.beginPath(); ctx.moveTo(xs,Y(c)); ctx.lineTo(xs+6,Y(c)); ctx.stroke(); ltrText(ctx,(stp<1?c.toFixed(1):String(c)),xs+9,Y(c)+4,'left'); }
+  ltrText(ctx,'m',xs+9,Y(H)-12,'left');
+  // release line
+  ctx.setLineDash([7,5]); ctx.strokeStyle=gold; ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(cx-120,Y(H)); ctx.lineTo(xs,Y(H)); ctx.stroke(); ctx.setLineDash([]);
+  ctx.fillStyle=gold; ctx.font='700 13px Heebo, sans-serif'; heText(ctx,'גובה ההתחלה',xs-8,Y(H)+17,'right');
+  if(P2.peaks.length){ const hp=P2.peaks[P2.peaks.length-1]; ctx.strokeStyle=css('--green'); ctx.lineWidth=3; ctx.beginPath(); ctx.moveTo(cx-60,Y(hp)); ctx.lineTo(cx+60,Y(hp)); ctx.stroke(); }
+  // strobe
+  ctx.fillStyle=terra; ctx.globalAlpha=0.28; P2.strobe.forEach(p=>{ ctx.beginPath(); ctx.arc(cx,Y(p[0]),R(5),0,TAU); ctx.fill(); }); ctx.globalAlpha=1;
+  // ball
+  const br=R(9+6*Math.cbrt(P2.m));
+  const yy=Math.min(Y(P2.y),bot-br);
+  ctx.fillStyle=terra; ctx.beginPath(); ctx.arc(cx,yy,br,0,TAU); ctx.fill();
+  // labels next to ball
+  ctx.font='800 13px Heebo, sans-serif'; ctx.fillStyle=navy; ltrText(ctx,'h = '+P2.y.toFixed(2)+' m',cx-br-10,yy-2,'right');
+  ctx.fillStyle=terra; ltrText(ctx,'v = '+Math.abs(P2.v).toFixed(2)+' m/s',cx-br-10,yy+15,'right');
+  // velocity arrow
+  const vs=Math.min(60,Math.abs(P2.v)*3); if(vs>2){ ctx.strokeStyle=terra; ctx.lineWidth=3; const d=P2.v<0?1:-1; ctx.beginPath(); ctx.moveTo(cx+br+8,yy); ctx.lineTo(cx+br+8,yy+d*vs); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(cx+br+2,yy+d*(vs-7)); ctx.lineTo(cx+br+8,yy+d*vs); ctx.lineTo(cx+br+14,yy+d*(vs-7)); ctx.stroke(); }
+}
+function p2read(){
+  const hasPeak=P2.peaks.length>0;
+  document.getElementById('n2-h').textContent=P2.lastH.toFixed(2)+' m';
+  document.getElementById('f2-h').textContent=hasPeak?'השיא האחרון אחרי קפיצה':'גובה ההתחלה';
+  document.getElementById('n2-U').textContent=fJ(P2.lastU);
+  document.getElementById('n2-v').textContent=isFinite(P2.lastV)?P2.lastV.toFixed(2)+' m/s':'—';
+  document.getElementById('f2-v').textContent=isFinite(P2.lastV)?(P2.lastV*3.6).toFixed(0)+' km/h · √(2gH) = '+Math.sqrt(2*G*P2.H).toFixed(2)+' m/s':'';
+  document.getElementById('n2-K').textContent=isFinite(P2.lastK)?fJ(P2.lastK):'—';
+  setBar(2,P2.m*G*P2.y,0.5*P2.m*P2.v*P2.v,P2.Q,P2.E0);
+  const extra=isFinite(P2.tfall)?'<span>זמן הנפילה: <span class="ltr">'+P2.tfall.toFixed(2)+' s</span></span>':'';
+  verdict(2,hasPeak?P2.lastU:P2.E0,P2.lastK,P2.air,extra);
+  document.getElementById('log2').innerHTML=P2.peaks.length?'הגבהים אחרי כל קפיצה: <b>'+P2.peaks.map(x=>x.toFixed(2)).join('  ·  ')+'</b> <span class="ltr">m</span>':'';
+  document.querySelectorAll('#ff2 tr[data-h]').forEach(r=>r.classList.toggle('cur',+r.dataset.h===P2.H));
+}
+/* ===================================================== */
+/* ============== TAB 3: FALL VS SLIDE ================= */
+/* ===================================================== */
+const P3={H:3,m:1,shape:'curve',fr:false,mu:0.10,slow:false};
+function trackY(x,W,H){ const u=x/W; return P3.shape==='line'? H*(1-u) : H*(1-u)*(1-u); }
+function buildTrack(){
+  const H=P3.H, W=1.8*H, N=1200, pts=[]; let s=0;
+  for(let i=0;i<=N;i++){ const x=W*i/N, y=trackY(x,W,H); if(i>0){ const p=pts[i-1]; s+=Math.hypot(x-p.x,y-p.y); } pts.push({x,y,s}); }
+  // slope angle and curvature from analytic derivatives
+  pts.forEach(p=>{ const u=p.x/W; const yp=P3.shape==='line'? -H/W : -2*H*(1-u)/W; const ypp=P3.shape==='line'?0: 2*H/(W*W);
+    p.sinp=-yp/Math.sqrt(1+yp*yp); p.cosp=1/Math.sqrt(1+yp*yp); p.k=ypp/Math.pow(1+yp*yp,1.5); });
+  P3.W=W; P3.pts=pts; P3.S=s;
+}
+function at(s){ const p=P3.pts; let lo=0,hi=p.length-1; if(s<=0) return p[0]; if(s>=P3.S) return p[hi];
+  while(hi-lo>1){ const m=(lo+hi)>>1; if(p[m].s<s) lo=m; else hi=m; } const a=p[lo],b=p[hi],f=(s-a.s)/(b.s-a.s);
+  return {x:a.x+f*(b.x-a.x),y:a.y+f*(b.y-a.y),sinp:a.sinp+f*(b.sinp-a.sinp),cosp:a.cosp+f*(b.cosp-a.cosp),k:a.k+f*(b.k-a.k)}; }
+function p3reset(){ buildTrack(); Object.assign(P3,{t:0,running:false,ya:P3.H,va:0,doneA:false,tA:NaN,vA:NaN,s:0,vs:0,doneB:false,tB:NaN,vB:NaN,E0:P3.m*G*P3.H,stuck:false}); }
+function sAcc(s,v){ const q=at(s); let a=G*q.sinp; if(P3.fr){ const N=Math.max(0,G*q.cosp+v*v*q.k); a-=P3.mu*N*(v>0?1:0); } return a; }
+function p3step(dt){
+  if(!P3.doneA){ const ny=P3.ya-P3.va*dt-0.5*G*dt*dt, nv=P3.va+G*dt;
+    if(ny<=0){ const tt=Math.sqrt(2*P3.H/G); P3.tA=tt; P3.vA=G*tt; P3.ya=0; P3.va=P3.vA; P3.doneA=true; } else { P3.ya=ny; P3.va=nv; } }
+  if(!P3.doneB){
+    const s=P3.s,v=P3.vs;
+    const k1s=v,k1v=sAcc(s,v), k2s=v+0.5*dt*k1v,k2v=sAcc(s+0.5*dt*k1s,v+0.5*dt*k1v), k3s=v+0.5*dt*k2v,k3v=sAcc(s+0.5*dt*k2s,v+0.5*dt*k2v), k4s=v+dt*k3v,k4v=sAcc(s+dt*k3s,v+dt*k3v);
+    let ns=s+dt*(k1s+2*k2s+2*k3s+k4s)/6, nv=v+dt*(k1v+2*k2v+2*k3v+k4v)/6;
+    if(nv<0){ nv=0; if(P3.t>0.2){ P3.stuck=true; P3.doneB=true; } }
+    if(ns>=P3.S){ const f=(P3.S-s)/(ns-s); P3.tB=P3.t+f*dt; P3.vB=v+f*(nv-v); ns=P3.S; nv=P3.vB; P3.doneB=true; }
+    P3.s=ns; P3.vs=nv;
+  }
+  P3.t+=dt;
+  if(P3.doneA&&P3.doneB) P3.running=false;
+}
+function p3adv(T){ const n=Math.max(1,Math.ceil(T/0.0005)); for(let i=0;i<n;i++){ if(!P3.running) break; p3step(T/n); } }
+function p3draw(){
+  const cv=document.getElementById('c3'); const {ctx,w,h}=setupCanvas(cv);
+  const navy=css('--navy'),terra=css('--terra'),gold=css('--gold'),muted=css('--muted'),green=css('--green');
+  ctx.fillStyle=css('--board'); ctx.fillRect(0,0,w,h);
+  const H=P3.H, W=P3.W, xa=-0.35*H;   // ball A falls at x = xa
+  const S=Math.min((w-90)/(W-xa),(h-70)/(H*1.2));
+  const x0=60+Math.max(0,(w-90-(W-xa)*S)/2) - xa*S, bot=h-30;
+  const X=x=>x0+x*S, Y=y=>bot-y*S;
+  ctx.fillStyle=muted; ctx.fillRect(0,bot,w,4);
+  ctx.setLineDash([7,5]); ctx.strokeStyle=gold; ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(X(xa)-20,Y(H)); ctx.lineTo(X(W),Y(H)); ctx.stroke(); ctx.setLineDash([]);
+  ctx.fillStyle=gold; ctx.font='700 13px Heebo, sans-serif'; heText(ctx,'אותו גובה התחלה',X(W),Y(H)-6,'right');
+  // track
+  ctx.strokeStyle=navy; ctx.lineWidth=4; ctx.beginPath(); P3.pts.forEach((p,i)=>{ if(i%6) return; i?ctx.lineTo(X(p.x),Y(p.y)):ctx.moveTo(X(p.x),Y(p.y)); }); ctx.lineTo(X(W),Y(0)); ctx.stroke();
+  // vertical guide for A
+  ctx.strokeStyle=css('--line'); ctx.lineWidth=1; ctx.setLineDash([3,4]); ctx.beginPath(); ctx.moveTo(X(xa),Y(H)); ctx.lineTo(X(xa),Y(0)); ctx.stroke(); ctx.setLineDash([]);
+  const br=R(8+5*Math.cbrt(P3.m));
+  // ball A
+  ctx.fillStyle=green; ctx.beginPath(); ctx.arc(X(xa),Math.min(Y(P3.ya),bot-br),br,0,TAU); ctx.fill();
+  ctx.fillStyle='#fff'; ctx.font='800 12px Heebo, sans-serif'; heText(ctx,'א',X(xa)+4,Math.min(Y(P3.ya),bot-br)+4,'right');
+  // ball B on the track (offset along the normal)
+  const q=at(P3.s);   // ball B sits on the track, offset by its radius along the upward normal
+  const px=X(q.x)+br*(q.sinp), py=Y(q.y)-br*(q.cosp);
+  ctx.fillStyle=terra; ctx.beginPath(); ctx.arc(px,py,br,0,TAU); ctx.fill();
+  ctx.fillStyle='#fff'; heText(ctx,'ב',px+4,py+4,'right');
+  // speed labels
+  ctx.font='800 13px Heebo, sans-serif';
+  ctx.fillStyle=green; ltrText(ctx,'v = '+P3.va.toFixed(2)+' m/s',X(xa),Math.min(Y(P3.ya),bot-br)-br-8,'center');
+  ctx.fillStyle=terra; ltrText(ctx,'v = '+P3.vs.toFixed(2)+' m/s',Math.min(px,w-50),py-br-8,'center');
+  // timer
+  ctx.fillStyle=muted; ctx.font='800 14px Heebo, sans-serif'; ltrText(ctx,'t = '+P3.t.toFixed(2)+' s',X(W),Y(H)+24,'right');
+}
+function p3read(){
+  // top group: start height and U (same for both); bottom group: speeds and K
+  document.getElementById('n3-h').textContent=P3.H.toFixed(1)+' m';
+  document.getElementById('f3-h').textContent='לשני הכדורים';
+  document.getElementById('n3-U').textContent=fJ(P3.E0);
+  const vA=P3.vA, vB=P3.vB;
+  document.getElementById('n3-vA').textContent=isFinite(vA)?vA.toFixed(2)+' m/s':'—';
+  document.getElementById('n3-KA').textContent=isFinite(vA)?fJ(0.5*P3.m*vA*vA):'—';
+  document.getElementById('f3-tA').textContent=isFinite(P3.tA)?'t = '+P3.tA.toFixed(2)+' s':'';
+  document.getElementById('n3-vB').textContent=isFinite(vB)?vB.toFixed(2)+' m/s':(P3.stuck?'נעצר':'—');
+  document.getElementById('n3-KB').textContent=isFinite(vB)?fJ(0.5*P3.m*vB*vB):'—';
+  document.getElementById('f3-tB').textContent=isFinite(P3.tB)?'t = '+P3.tB.toFixed(2)+' s':'';
+  const el=document.getElementById('ver3');
+  if(!isFinite(vA)&&!isFinite(vB)){ el.innerHTML='<span>משחררים את שניהם יחד. מי מגיע ראשון, ומי מגיע מהר יותר?</span>'; return; }
+  let s='<span>זמן ההגעה: <span style="color:var(--green)">א׳ <span class="ltr">'+(isFinite(P3.tA)?P3.tA.toFixed(2)+' s':'…')+'</span></span> · <span style="color:var(--terra)">ב׳ <span class="ltr">'+(isFinite(P3.tB)?P3.tB.toFixed(2)+' s':'…')+'</span></span></span>';
+  if(isFinite(vA)&&isFinite(vB)){
+    if(!P3.fr) s+='<span class="ok">אותה מהירות בתחתית, זמן שונה ✓</span>';
+    else { const lost=P3.E0-0.5*P3.m*vB*vB; s+='<span class="lossc">החיכוך הפך <span class="ltr">'+fJ(lost)+'</span> לחום</span>'; }
+  }
+  el.innerHTML=s;
+}
+
+/* ===================================================== */
+/* ================= UI wiring ========================= */
+/* ===================================================== */
+
+/* ---------- regroup each panel: controls | canvas | numbers ---------- */
+document.querySelectorAll('section.panel').forEach(sec=>{
+  const lay=sec.querySelector('.layout'), ctr=lay.querySelector('.controls'), plot=lay.querySelector('.plot');
+  sec.insertBefore(ctr,lay); sec.insertBefore(plot,lay); lay.remove();
+  const side=document.createElement('div'); side.className='side';
+  ['.big','.verdict','.ebar'].forEach(q=>{ const el=sec.querySelector(q); if(el) side.appendChild(el); });
+  const ban=sec.querySelector('.banner');
+  if(ban){ const d=document.createElement('details'); d.className='banner'; const sm=document.createElement('summary'); sm.textContent='מה רואים כאן, ומה לשאול';
+    d.appendChild(sm); while(ban.firstChild) d.appendChild(ban.firstChild); ban.remove(); side.appendChild(d); }
+  sec.appendChild(side);
+});
+buildBig(1,'למעלה: בשיא','למטה: בנקודה הנמוכה');
+buildBig(2,'למעלה: בשיא','למטה: רגע לפני הרצפה');
+buildBig(3,'למעלה: לפני השחרור','למטה');
+document.querySelector('#big3 .grp.bot').innerHTML='<h3>למטה: שני הכדורים בתחתית</h3><div class="cards">'+
+  '<div class="card"><span class="k" style="color:var(--green)">א׳, נופל ישר: מהירות</span><span class="n" id="n3-vA" style="color:var(--green)">—</span><span class="f" id="f3-tA"></span></div>'+
+  '<div class="card"><span class="k" style="color:var(--green)">א׳: אנרגיה קינטית</span><span class="n" id="n3-KA" style="color:var(--green)">—</span><span class="f">K = ½·m·v²</span></div>'+
+  '<div class="card"><span class="k">ב׳, במגלשה: מהירות</span><span class="n" id="n3-vB">—</span><span class="f" id="f3-tB"></span></div>'+
+  '<div class="card"><span class="k">ב׳: אנרגיה קינטית</span><span class="n" id="n3-KB">—</span><span class="f">K = ½·m·v²</span></div></div>';
+[1,2,5,10,20,50,100].forEach(hh=>{ const b=document.createElement('button'); b.type='button'; b.textContent=hh+' m'; b.dataset.h=hh; document.getElementById('ch2').appendChild(b); });
+[1,10,20,100].forEach(hh=>{ const v=Math.sqrt(2*G*hh); const r=document.createElement('tr'); r.dataset.h=hh; r.innerHTML='<td>'+hh+' m</td><td>'+v.toFixed(2)+' m/s</td><td>'+(v*3.6).toFixed(0)+' km/h</td>'; document.getElementById('ff2').appendChild(r); });
+
+const SIMS={
+  t1:{reset:p1reset,adv:p1adv,draw:p1draw,read:p1read,st:P1,trail:()=>{P1.trail.push([P1.L*Math.sin(P1.th),-P1.L*Math.cos(P1.th)]); if(P1.trail.length>140) P1.trail.shift();}},
+  t2:{reset:p2reset,adv:p2adv,draw:p2draw,read:p2read,st:P2},
+  t3:{reset:p3reset,adv:p3adv,draw:p3draw,read:p3read,st:P3}
+};
+function draw(k){ const S=SIMS[k]; try{ S.draw(); S.read(); }catch(e){ console.error('draw '+k,e); } }
+let active='t1', last=null;
+function frame(ts){
+  const S=SIMS[active], st=S.st;
+  if(last===null) last=ts;
+  const dt=Math.min(0.05,(ts-last)/1000); last=ts;
+  if(st.running){ S.adv(dt*(st.slow?0.25:1)); if(S.trail) S.trail(); }
+  draw(active);
+  requestAnimationFrame(frame);
+}
+function rng(id,fn,fmt){ const s=document.getElementById(id); const v=document.getElementById(id.replace('s','v')); s.addEventListener('input',()=>{ v.textContent=fmt(+s.value); fn(+s.value); }); }
+// tab 1
+rng('s1-a',x=>{P1.a=x;p1reset();},x=>x+'°');
+rng('s1-L',x=>{P1.L=x/100;p1reset();},x=>(x/100).toFixed(2)+' m');
+rng('s1-m',x=>{P1.m=x;p1reset();},x=>x.toFixed(2)+' kg');
+rng('s1-c',x=>{P1.cl=x;},x=>CLEV[x].n);
+document.getElementById('m1-air').addEventListener('click',e=>{P1.air=!P1.air;setMode(e.target,P1.air,'התנגדות אוויר: פועלת ✓','התנגדות אוויר: כבויה ✕');document.getElementById('s1-c').disabled=!P1.air;p1reset();});
+document.getElementById('m1-slow').addEventListener('click',e=>{P1.slow=!P1.slow;setMode(e.target,P1.slow,'הילוך איטי: פועל ✓','הילוך איטי: כבוי ✕');});
+document.getElementById('b1-go').addEventListener('click',()=>{ if(P1.t>0) p1reset(); P1.running=true; });
+document.getElementById('b1-reset').addEventListener('click',()=>p1reset());
+// tab 2
+function setH2(x){ P2.H=x; document.getElementById('s2-h').value=x; document.getElementById('v2-h').textContent=x.toFixed(1)+' m';
+  document.querySelectorAll('#ch2 button').forEach(b=>b.setAttribute('aria-pressed',+b.dataset.h===x?'true':'false')); p2reset(); }
+rng('s2-h',x=>setH2(x),x=>x.toFixed(1)+' m');
+document.querySelectorAll('#ch2 button').forEach(b=>b.addEventListener('click',()=>setH2(+b.dataset.h)));
+rng('s2-m',x=>{P2.m=x;p2reset();},x=>x.toFixed(2)+' kg');
+rng('s2-c',x=>{P2.cl=x;},x=>CLEV[x].n);
+document.getElementById('m2-air').addEventListener('click',e=>{P2.air=!P2.air;setMode(e.target,P2.air,'התנגדות אוויר: פועלת ✓','התנגדות אוויר: כבויה ✕');document.getElementById('s2-c').disabled=!P2.air;p2reset();});
+document.getElementById('m2-bounce').addEventListener('click',e=>{P2.bounce=!P2.bounce;setMode(e.target,P2.bounce,'קופץ חזרה בלי איבוד: פועל ✓','קופץ חזרה בלי איבוד: כבוי ✕');p2reset();});
+document.getElementById('m2-slow').addEventListener('click',e=>{P2.slow=!P2.slow;setMode(e.target,P2.slow,'הילוך איטי: פועל ✓','הילוך איטי: כבוי ✕');});
+document.getElementById('b2-go').addEventListener('click',()=>{ if(P2.t>0) p2reset(); P2.running=true; });
+document.getElementById('b2-reset').addEventListener('click',()=>p2reset());
+// tab 3
+rng('s3-h',x=>{P3.H=x;p3reset();},x=>x.toFixed(1)+' m');
+rng('s3-m',x=>{P3.m=x;p3reset();},x=>x.toFixed(2)+' kg');
+rng('s3-mu',x=>{P3.mu=x;p3reset();},x=>x.toFixed(2));
+document.querySelectorAll('#ch3 button').forEach(b=>b.addEventListener('click',()=>{ P3.shape=b.dataset.shape; document.querySelectorAll('#ch3 button').forEach(x=>x.setAttribute('aria-pressed',x===b?'true':'false')); p3reset(); }));
+document.getElementById('m3-fr').addEventListener('click',e=>{P3.fr=!P3.fr;setMode(e.target,P3.fr,'חיכוך במגלשה: פועל ✓','חיכוך במגלשה: כבוי ✕');document.getElementById('s3-mu').disabled=!P3.fr;p3reset();});
+document.getElementById('m3-slow').addEventListener('click',e=>{P3.slow=!P3.slow;setMode(e.target,P3.slow,'הילוך איטי: פועל ✓','הילוך איטי: כבוי ✕');});
+document.getElementById('b3-go').addEventListener('click',()=>{ if(P3.t>0) p3reset(); P3.running=true; });
+document.getElementById('b3-reset').addEventListener('click',()=>p3reset());
+// tabs, theme, resize
+document.querySelectorAll('nav.tabs button').forEach(b=>b.addEventListener('click',()=>{
+  document.querySelectorAll('nav.tabs button').forEach(x=>x.setAttribute('aria-selected',x===b?'true':'false'));
+  document.querySelectorAll('.panel').forEach(p=>p.classList.toggle('active',p.id===b.dataset.tab));
+  active=b.dataset.tab; last=null; draw(active);
+}));
+document.getElementById('themebtn').addEventListener('click',e=>{ const d=document.documentElement, dark=d.getAttribute('data-theme')!=='dark'; d.setAttribute('data-theme',dark?'dark':'light'); e.target.textContent=dark?'מצב יום':'מצב לילה'; draw(active); });
+window.addEventListener('resize',()=>draw(active));
+p1reset(); setH2(10); p3reset();
+['t1','t2','t3'].forEach(draw);
+requestAnimationFrame(frame);
+window.__S={P1,P2,P3,SIMS,draw};
+</script>
+</body>
+</html>
