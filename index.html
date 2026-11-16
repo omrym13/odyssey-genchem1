@@ -128,7 +128,7 @@ input[type=password],input[type=text],textarea{font:inherit; padding:8px 10px; b
 <footer class="footer"><div class="wrap">
   <b>כימיה כללית 1</b> · תוכנית אודיסיאה · בית הספר לכימיה, אוניברסיטת תל אביב<br>
   מרצה הקורס: ד״ר עומרי מורג<br>
-  <span class="tiny">גרסה <span class="num">0.4.3</span> · בנייה <span class="num">2026-11-16</span> · כל החומרים באתר מיועדים לשימוש התלמידים בקורס בלבד.</span>
+  <span class="tiny">גרסה <span class="num">0.4.4</span> · בנייה <span class="num">2026-11-16</span> · כל החומרים באתר מיועדים לשימוש התלמידים בקורס בלבד.</span>
 </div></footer>
 <div class="toast" id="toast"></div>
 
@@ -208,7 +208,12 @@ const HANPATZOT = [
    items:["בועת הסבון: כמה גדולה תצא הבועה כשבקבוק של ליטר מתחמם ל־60 מעלות?",
           "הנר בכוס: מה באמת העלה את המים, השריפה או הטמפרטורה?",
           "הבלונים בחנקן הנוזלי: לאן היו צריכים להתכווץ לפי חוק הגז האידיאלי, ולמה הפחמן הדו־חמצני קרס לגמרי?"],
-   questions:"hanpatza01_questions.pdf", solution:"hanpatza01_solution.pdf", solutionNote:""}
+   questions:"hanpatza01_questions.pdf", solution:"hanpatza01_solution.pdf", solutionNote:""},
+  {id:2, title:"גז שמתפשט לתוך ריק, וכמה זה עולה לנו", given:"2026-11-16", due:"2026-11-18", unit:3,
+   intro:"שתי שאלות על מה שסגרנו בשיעור של יום שני: עבודה מקסימלית, הדרך חזרה והחוק הראשון. מגישים במייל או על השולחן שלי, עד תחילת השיעור של יום רביעי.",
+   items:["ההתפשטות לתוך ריק: מה העבודה, מה החום ומה השינוי באנרגיה הפנימית, ומה קורה לטמפרטורה בגז אמיתי?",
+          "כמה עולה לנו התפשטות לתוך ריק: מחזירים את הגז למצב ההתחלתי בארבע דרכים, ומגלים לאן הולכת האנרגיה שלא הפכה לעבודה."],
+   questions:"hanpatza02_questions.pdf", solution:null, solutionNote:"הפתרון יעלה אחרי מועד ההגשה"}
 ];
 
 /* חומרי לימוד לפי מפגש. file:null = עוד לא עלה; note מוצג במקום הכפתור */
@@ -231,7 +236,9 @@ const MATERIALS = [
     {label:"🧪 סימולטור: שימור אנרגיה בשלוש דרכים", file:"energy_conservation.html", primary:true},
     {label:"📄 תרגיל בית 2", file:"hw02.pdf"}]},
   {n:6, date:"2026-11-11", title:"העבודה של גז אידיאלי", files:[
-    {label:"📄 סיכום לתלמיד: העבודה של גז אידיאלי", file:"s06_work_ideal_gas_summary.pdf", primary:true}]}
+    {label:"📄 סיכום לתלמיד: העבודה של גז אידיאלי", file:"s06_work_ideal_gas_summary.pdf", primary:true}]},
+  {n:7, date:"2026-11-16", title:"עבודה מקסימלית והחוק הראשון", files:[
+    {label:"💥 מטלת הנפצה 2 — שאלות", file:"hanpatza02_questions.pdf", primary:true}]}
 ];
 /* תרגילי בית */
 const HOMEWORK = [
