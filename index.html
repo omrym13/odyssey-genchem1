@@ -128,7 +128,7 @@ input[type=password],input[type=text],textarea{font:inherit; padding:8px 10px; b
 <footer class="footer"><div class="wrap">
   <b>כימיה כללית 1</b> · תוכנית אודיסיאה · בית הספר לכימיה, אוניברסיטת תל אביב<br>
   מרצה הקורס: ד״ר עומרי מורג<br>
-  <span class="tiny">גרסה <span class="num">0.4.2</span> · בנייה <span class="num">2026-10-28</span> · כל החומרים באתר מיועדים לשימוש התלמידים בקורס בלבד.</span>
+  <span class="tiny">גרסה <span class="num">0.4.3</span> · בנייה <span class="num">2026-11-16</span> · כל החומרים באתר מיועדים לשימוש התלמידים בקורס בלבד.</span>
 </div></footer>
 <div class="toast" id="toast"></div>
 
@@ -242,6 +242,10 @@ const HOMEWORK = [
    desc:"שבע שאלות: מכוח לאנרגיה. החומר על העבודה של גז ייכנס לתרגיל בית 3, שיעלה במודל בנפרד.",
    file:"hw02.pdf", moodle:"https://moodle.tau.ac.il/mod/assign/view.php?id=259360", solution:null}
 ];
+/* מטלת הקיץ — מוצגת בראש לשונית ״תרגילי בית״ */
+const SUMMER = {title:"מטלת הקיץ בכימיה — העבודה המסכמת", due:"2026-10-26",
+  desc:"פתרון מלא לחלק א׳ (חמש השאלות הפתוחות) ולחלק ג׳ (ציד השגיאה), עם כל השלבים וטבלת תשובות בסוף. לחלק ב׳, מעבדת המטבח, אין פתרון אחד: הוא נשען על הנתונים שכל אחד מכם מדד.",
+  solution:"summer_final_solution.pdf"};
 const STUDY_TIPS = [
   {i:"🔎", t:"קודם תחזית, אחר כך חישוב", d:"לפני כל חישוב, נחשו מה ייצא: גדול או קטן, עולה או יורד. תחזית שהתבדתה היא בדיוק המקום שבו לומדים משהו."},
   {i:"🌡️", t:"קלווין, תמיד", d:"בחוקי הגזים מכפילים ומחלקים רק בטמפרטורה מוחלטת. בצלזיוס אין אפס אמיתי."},
@@ -421,7 +425,11 @@ function hwCard(h){
 }
 function pageHomework(){
   return `<section class="section"><div class="section-head"><h2>תרגילי בית</h2><p>מגישים במודל · פתרון מלא, כל שלב עם יחידות · תשובה סופית בלי דרך לא מקבלת ניקוד</p></div>
-  ${[...HOMEWORK].reverse().map(hwCard).join("")}</section>`;
+  ${[...HOMEWORK].reverse().map(hwCard).join("")}
+  <div class="card" style="margin-bottom:12px"><h3>☀️ ${esc(SUMMER.title)}</h3>
+    <div style="display:flex;flex-wrap:wrap;gap:6px;margin:4px 0 6px"><span class="tag">הוגשה ${esc(fmtShort(SUMMER.due))}</span></div>
+    <p>${esc(SUMMER.desc)}</p>
+    <div class="links">${fileBtn("✅ פתרון מלא",SUMMER.solution,true)}</div></div></section>`;
 }
 function pageFaq(){
   const q=[
