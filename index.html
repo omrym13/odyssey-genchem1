@@ -241,7 +241,8 @@ const MATERIALS = [
   {n:7, date:"2026-11-16", title:"עבודה מקסימלית והחוק הראשון", files:[
     {label:"💥 מטלת הנפצה 2 — שאלות", file:"hanpatza02_questions.pdf", primary:true}]},
   {n:8, date:"2026-11-18", title:"תרמוכימיה: איך מודדים חום", files:[
-    {label:"📖 קריאת העשרה: הנוזל שלא היה", file:"s08_heat_story.pdf", primary:true}]}
+    {label:"🧪 סימולטור: קלורימטר פצצה וכוס קפה", file:"calorimetry_simulator.html", primary:true},
+    {label:"📖 קריאת העשרה: הנוזל שלא היה", file:"s08_heat_story.pdf"}]}
 ];
 /* תרגילי בית */
 const HOMEWORK = [
@@ -250,7 +251,10 @@ const HOMEWORK = [
    file:"hw01.pdf", moodle:"https://moodle.tau.ac.il/mod/assign/view.php?id=218737", solution:"hw01_solution.pdf"},
   {id:2, title:"עבודה ואנרגיה", given:"2026-11-09", due:"2026-11-18",
    desc:"שבע שאלות: מכוח לאנרגיה. החומר על העבודה של גז ייכנס לתרגיל בית 3, שיעלה במודל בנפרד.",
-   file:"hw02.pdf", moodle:"https://moodle.tau.ac.il/mod/assign/view.php?id=259360", solution:null}
+   file:"hw02.pdf", moodle:"https://moodle.tau.ac.il/mod/assign/view.php?id=259360", solution:null},
+  {id:4, title:"קלורימטריה בסימולטור", given:"2026-11-18", due:"2026-12-02",
+   desc:"תרגיל אישי בתוך הסימולטור: שבעה חלקים, כשעתיים, וכל הנתונים באים מהמדידות שלכם. פותחים את הסימולטור, נכנסים ללשונית ״ד׳ · תרגילים״, מקלידים שם מלא ואת ארבע הספרות האחרונות של תעודת הזהות, והמדריך מוביל אתכם שלב אחרי שלב. בסוף מפיקים דף הגשה, ומעלים אותו למודל יחד עם צילום של דפי החישוב. ההגשה עד יום רביעי 2.12 בשעה 23:59.",
+   file:"calorimetry_simulator.html#ex", fileLabel:"🧪 פתיחת התרגיל בסימולטור", moodle:null, solution:null}
 ];
 /* מטלת הקיץ — מוצגת בראש לשונית ״תרגילי בית״ */
 const SUMMER = {title:"מטלת הקיץ בכימיה — העבודה המסכמת", due:"2026-10-26",
@@ -265,6 +269,8 @@ const STUDY_TIPS = [
 
 /* הודעות — מה שכתוב כאן הוא מה שהתלמידים רואים */
 const ANNOUNCEMENTS = [
+  {date:"2026-11-18", title:"תרגיל בית 4: קלורימטריה בסימולטור", pinned:true,
+   body:"תרגיל בית 4 עלה, והפעם הוא בתוך סימולטור הקלורימטריה שראיתם בשיעור. לכל אחד נתונים משלו: מקלידים בלשונית ״ד׳ · תרגילים״ שם מלא ואת ארבע הספרות האחרונות של תעודת הזהות, והמדריך מוביל שלב אחרי שלב. התרגיל אורך כשעתיים. לא צריך לסיים בבת אחת: ההתקדמות נשמרת בדפדפן, ואפשר להעתיק קוד התקדמות ולהמשיך ממנו במחשב אחר. בסוף מפיקים דף הגשה ומעלים אותו למודל יחד עם צילום של דפי החישוב. ההגשה עד יום רביעי, 2.12, בשעה 23:59. הסימולטור נמצא בלשונית ״תרגילי בית״ ובחומרי הלימוד של מפגש 8."},
   {date:"2026-11-18", title:"קריאת העשרה: הנוזל שלא היה", pinned:true,
    body:"כתבתי לכם סיפור קצר, שלושה עמודים, שסוגר את השיעור של היום על קלורימטריה: איך מדענים האמינו כמעט מאה שנה שהחום הוא נוזל, מי הרג את הנוזל הזה, ולמה המילה ״קלוריות״ שעל שקית הבוטנים היא השריד האחרון שלו. קראו אותו אחרי השיעור, לא לפניו: הוא מגלה את התשובה לשאלה שנשאל בכיתה. אין הגשה ואין ציון. הסיפור בלשונית ״חומרי לימוד״, תחת המפגש של 18.11."},
   {date:"2026-11-16", title:"עלו פתרונות: מטלת הקיץ ותרגיל בית 1", pinned:true,
@@ -435,7 +441,7 @@ function hwCard(h){
   return `<div class="card ${open?"accent":""}" style="margin-bottom:12px"><h3>תרגיל בית ${h.id} — ${esc(h.title)}</h3>
     <div style="display:flex;flex-wrap:wrap;gap:6px;margin:4px 0 6px"><span class="tag">ניתן ${esc(fmtShort(h.given))}</span><span class="tag ${open?"quiz":""}">הגשה עד ${esc(fmtDate(h.due))}</span></div>
     <p>${esc(h.desc)}</p>
-    <div class="links">${fileBtn("📄 התרגיל",h.file,true)} ${h.moodle?fileBtn("📬 הגשה במודל",h.moodle):""} ${h.solution?fileBtn("✅ פתרון מלא",h.solution):`<span class="btn btn-ghost btn-sm" aria-disabled="true">✅ הפתרון יעלה אחרי מועד ההגשה</span>`}</div></div>`;
+    <div class="links">${fileBtn(h.fileLabel||"📄 התרגיל",h.file,true)} ${h.moodle?fileBtn("📬 הגשה במודל",h.moodle):""} ${h.solution?fileBtn("✅ פתרון מלא",h.solution):`<span class="btn btn-ghost btn-sm" aria-disabled="true">✅ הפתרון יעלה אחרי מועד ההגשה</span>`}</div></div>`;
 }
 function pageHomework(){
   return `<section class="section"><div class="section-head"><h2>תרגילי בית</h2><p>מגישים במודל · פתרון מלא, כל שלב עם יחידות · תשובה סופית בלי דרך לא מקבלת ניקוד</p></div>
